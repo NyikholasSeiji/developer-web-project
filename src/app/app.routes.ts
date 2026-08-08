@@ -1,12 +1,15 @@
 import { Routes } from '@angular/router';
 
-// Cada feature registra suas próprias rotas com lazy loading, por exemplo:
-//
-// {
-//   path: 'products',
-//   loadChildren: () =>
-//     import('./features/products/products.routes').then((m) => m.PRODUCTS_ROUTES),
-// },
-//
-// Nenhuma rota foi criada ainda — serão adicionadas junto com cada feature.
-export const routes: Routes = [];
+export const routes: Routes = [
+  {
+    path: '',
+    loadChildren: () => import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
+  },
+
+  // Próximas features registram suas rotas do mesmo jeito, por exemplo:
+  // {
+  //   path: 'produtos',
+  //   loadChildren: () =>
+  //     import('./features/products/products.routes').then((m) => m.PRODUCTS_ROUTES),
+  // },
+];
