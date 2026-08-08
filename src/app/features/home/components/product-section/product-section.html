@@ -1,0 +1,19 @@
+<section class="py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-5 sm:px-8">
+    <div class="mb-10">
+      <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">03 — Peças</p>
+      <h2 class="mt-2 font-display text-3xl text-ink">Produtos em destaque</h2>
+    </div>
+
+    <app-filter
+      [categories]="categories()"
+      [filter]="filter()"
+      (filterChange)="onFilterChange($event)"
+      (clear)="onClearFilter()"
+    />
+
+    <div class="mt-10">
+      <app-product-grid [products]="filteredProducts()" />
+    </div>
+  </div>
+</section>
