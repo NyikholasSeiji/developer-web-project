@@ -1,0 +1,11 @@
+@if (products().length > 0) {
+  <div class="grid grid-cols-2 gap-x-5 gap-y-10 sm:gap-x-6 lg:grid-cols-4 lg:gap-x-8">
+    @for (product of products(); track product.id) {
+      <app-product-card [product]="product" />
+    }
+  </div>
+} @else {
+  <div class="border border-line py-24 text-center">
+    <p class="font-display text-lg italic text-ink-soft">Nenhum produto encontrado com esses filtros.</p>
+  </div>
+}

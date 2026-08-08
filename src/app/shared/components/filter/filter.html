@@ -1,0 +1,56 @@
+<div class="flex flex-col gap-4 border-y border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+
+    <div class="flex items-center gap-2">
+      <label for="filter-category" class="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Categoria</label>
+      <select
+        id="filter-category"
+        class="border-b border-line bg-transparent py-1 text-sm text-ink focus:outline-none"
+        [value]="filter().categoryId ?? ''"
+        (change)="onCategoryChange($any($event.target).value)"
+      >
+        <option value="">Todas</option>
+        @for (category of categories(); track category.id) {
+          <option [value]="category.id">{{ category.name }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <label for="filter-price" class="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Preço</label>
+      <select
+        id="filter-price"
+        class="border-b border-line bg-transparent py-1 text-sm text-ink focus:outline-none"
+        [value]="filter().maxPrice ?? ''"
+        (change)="onPriceChange($any($event.target).value)"
+      >
+        <option value="">Qualquer</option>
+        @for (option of priceOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <label for="filter-sort" class="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Ordenar</label>
+      <select
+        id="filter-sort"
+        class="border-b border-line bg-transparent py-1 text-sm text-ink focus:outline-none"
+        [value]="filter().sort"
+        (change)="onSortChange($any($event.target).value)"
+      >
+        @for (option of sortOptions; track option.value) {
+          <option [value]="option.value">{{ option.label }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    (click)="clear.emit()"
+    class="self-start text-[11px] uppercase tracking-[0.1em] text-ink-soft underline decoration-line underline-offset-4 hover:text-ink sm:self-auto"
+  >
+    Limpar filtros
+  </button>
+</div>
