@@ -1,0 +1,85 @@
+<header class="sticky top-0 z-40 border-b border-line bg-bg/90 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
+
+    <a routerLink="/" class="font-display text-xl tracking-[0.18em]">FORME</a>
+
+    <nav class="hidden lg:block">
+      <app-navbar />
+    </nav>
+
+    <div class="flex items-center gap-5">
+      <button
+        type="button"
+        (click)="toggleSearch()"
+        aria-label="Buscar"
+        class="text-ink-soft hover:text-ink transition-colors duration-200"
+      >
+        <svg width="19" height="19" viewBox="0 0 19 19" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8.2" cy="8.2" r="6.2" />
+          <path d="M13 13L17.5 17.5" stroke-linecap="round" />
+        </svg>
+      </button>
+
+      <a routerLink="/favoritos" aria-label="Favoritos" class="hidden sm:block text-ink-soft hover:text-ink transition-colors duration-200">
+        <svg width="19" height="19" viewBox="0 0 20 18" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M10 17S1 11.6 1 5.8C1 2.9 3.2 1 5.7 1c1.7 0 3.3.9 4.3 2.4C11 1.9 12.6 1 14.3 1 16.8 1 19 2.9 19 5.8 19 11.6 10 17 10 17Z" stroke-linejoin="round"/>
+        </svg>
+      </a>
+
+      <a routerLink="/carrinho" aria-label="Carrinho" class="relative text-ink-soft hover:text-ink transition-colors duration-200">
+        <svg width="19" height="19" viewBox="0 0 20 19" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M1 1h2l2 12.5h11L18 5H4" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="7.5" cy="17" r="1.2" fill="currentColor" stroke="none"/>
+          <circle cx="14.5" cy="17" r="1.2" fill="currentColor" stroke="none"/>
+        </svg>
+        <span class="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-ink text-[9px] text-bg">0</span>
+      </a>
+
+      <button
+        type="button"
+        (click)="toggleMobileMenu()"
+        aria-label="Abrir menu"
+        class="lg:hidden text-ink-soft hover:text-ink transition-colors duration-200"
+      >
+        <svg width="20" height="14" viewBox="0 0 20 14" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M0 1H20" /><path d="M0 7H20" /><path d="M0 13H20" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  @if (isSearchOpen()) {
+    <div class="border-t border-line bg-bg">
+      <div class="mx-auto max-w-7xl px-5 py-4 sm:px-8">
+        <input
+          type="search"
+          placeholder="Buscar produtos…"
+          class="w-full border-b border-line bg-transparent py-2 font-display text-lg italic text-ink placeholder:text-ink-soft focus:outline-none"
+        />
+      </div>
+    </div>
+  }
+
+  @if (isMobileMenuOpen()) {
+    <div class="lg:hidden border-t border-line bg-bg px-5 py-6 sm:px-8">
+      <ul class="flex flex-col gap-5">
+        @for (link of [
+          { label: 'Home', path: '/' },
+          { label: 'Produtos', path: '/produtos' },
+          { label: 'Categorias', path: '/categorias' },
+          { label: 'Sobre', path: '/sobre' }
+        ]; track link.path) {
+          <li>
+            <a
+              [routerLink]="link.path"
+              (click)="closeMobileMenu()"
+              class="font-display text-2xl italic text-ink"
+            >
+              {{ link.label }}
+            </a>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</header>
