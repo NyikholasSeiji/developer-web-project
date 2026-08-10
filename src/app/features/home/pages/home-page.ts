@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { HeroSectionComponent } from '../components/hero-section/hero-section';
 import { CategoriesSectionComponent } from '../components/categories-section/categories-section';
 import { ProductSectionComponent } from '../components/product-section/product-section';
-import { CtaSectionComponent } from '../components/cta-section/cta-section';
+import { CtaSectionComponent } from '../../../shared/components/cta-section/cta-section';
 import { ListCategoriesUseCase } from '../../../core/application/list-categories.usecase';
 
 @Component({
