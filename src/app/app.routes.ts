@@ -5,6 +5,10 @@ export const routes: Routes = [
     path: '',
     loadChildren: () => import('./features/home/home.routes').then((m) => m.HOME_ROUTES),
   },
+  {
+    path: 'sobre',
+    loadChildren: () => import('./features/about/about.routes').then((m) => m.ABOUT_ROUTES),
+  },
 
   // Próximas features registram suas rotas do mesmo jeito, por exemplo:
   // {
