@@ -9,6 +9,11 @@ export const routes: Routes = [
     path: 'sobre',
     loadChildren: () => import('./features/about/about.routes').then((m) => m.ABOUT_ROUTES),
   },
+  {
+    path: '',
+    loadChildren: () =>
+      import('./features/authentication/authentication.routes').then((m) => m.AUTHENTICATION_ROUTES),
+  },
 
   // Próximas features registram suas rotas do mesmo jeito, por exemplo:
   // {

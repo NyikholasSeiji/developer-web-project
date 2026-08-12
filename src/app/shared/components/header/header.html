@@ -26,6 +26,26 @@
         </svg>
       </a>
 
+      @if (isAuthenticated()) {
+        <div class="hidden items-center gap-3 sm:flex">
+          <span class="text-[13px] text-ink-soft">Olá, {{ currentUser()?.name }}</span>
+          <button
+            type="button"
+            (click)="onLogout()"
+            class="text-[11px] uppercase tracking-[0.1em] text-ink-soft underline decoration-line underline-offset-4 hover:text-ink"
+          >
+            Sair
+          </button>
+        </div>
+      } @else {
+        <a routerLink="/login" aria-label="Entrar" class="text-ink-soft hover:text-ink transition-colors duration-200">
+          <svg width="19" height="19" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="10" cy="6.5" r="4"/>
+            <path d="M2 19c1-4.2 4.4-7 8-7s7 2.8 8 7" stroke-linecap="round"/>
+          </svg>
+        </a>
+      }
+
       <a routerLink="/carrinho" aria-label="Carrinho" class="relative text-ink-soft hover:text-ink transition-colors duration-200">
         <svg width="19" height="19" viewBox="0 0 20 19" fill="none" stroke="currentColor" stroke-width="1.5">
           <path d="M1 1h2l2 12.5h11L18 5H4" stroke-linejoin="round" stroke-linecap="round"/>
