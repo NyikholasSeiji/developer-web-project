@@ -1,0 +1,13 @@
+<div class="flex flex-col gap-2">
+  <label [for]="fieldId()" class="text-[11px] uppercase tracking-[0.1em] text-ink-soft">{{ label() }}</label>
+  <input
+    [id]="fieldId()"
+    [type]="type()"
+    [formControl]="control()"
+    [autocomplete]="autocomplete()"
+    class="border-b border-line bg-transparent py-2 text-sm text-ink placeholder:text-ink-soft focus:outline-none focus:border-ink"
+  />
+  @if (errorMessage(); as message) {
+    <span class="text-xs text-ink">{{ message }}</span>
+  }
+</div>

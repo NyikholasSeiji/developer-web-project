@@ -15,7 +15,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'inverted';
         <ng-container *ngTemplateOutlet="content" />
       </a>
     } @else {
-      <button [type]="type()" [class]="classes()">
+      <button [type]="type()" [disabled]="disabled()" [class]="classes()">
         <ng-container *ngTemplateOutlet="content" />
       </button>
     }
@@ -24,6 +24,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'inverted';
 export class ButtonComponent {
   variant = input<ButtonVariant>('primary');
   type = input<'button' | 'submit'>('button');
+  disabled = input<boolean>(false);
   /** Quando informado, o botão renderiza como <a routerLink> em vez de <button>. */
   link = input<string | undefined>(undefined);
 
