@@ -1,4 +1,4 @@
-# 🛍️ FORME — Loja Virtual
+# 🛍️ FNShop — Loja Virtual
 
 Frontend de um e-commerce construído em **Angular 19** (Standalone Components),
 seguindo uma arquitetura inspirada em **Clean Architecture** adaptada para o
@@ -14,6 +14,7 @@ Este README é atualizado conforme o projeto evolui.
 * Tailwind CSS v4
 * RxJS
 * Signals (`signal`, `computed`, `toSignal`)
+* Reactive Forms (`FormGroup`, `Validators`)
 
 ## ▶️ Executando o projeto
 
@@ -40,24 +41,32 @@ http://localhost:4200
 ```text
 src/app/
 ├── core/
-│   ├── domain/           → entidades e contratos (Product, ProductRepository...), sem Angular
-│   ├── application/      → casos de uso (ex: ListProductsUseCase), orquestram o domain
+│   ├── domain/           → entidades e contratos (Product, User, AuthRepository...), sem Angular
+│   ├── application/      → casos de uso (ex: ListProductsUseCase, LoginUseCase) e stores de estado (AuthSessionStore)
 │   ├── infrastructure/   → implementações concretas dos contratos (hoje: mock)
 │   └── config/           → wiring de DI: liga interface (domain) → implementação (infrastructure)
 │
-├── features/             → uma pasta por fatia de negócio, carregada via lazy loading
-│   └── home/              (implementada)
-│       ├── pages/          → componente de rota (HomePage)
-│       ├── components/     → seções específicas da Home (hero, categorias, produtos, CTA)
-│       └── home.routes.ts
+├── features/              → uma pasta por fatia de negócio, carregada via lazy loading
+│   ├── home/               (implementada)
+│   │   ├── pages/            → componente de rota (HomePage)
+│   │   ├── components/       → seções específicas da Home (hero, categorias, produtos, CTA)
+│   │   └── home.routes.ts
+│   ├── about/              (implementada)
+│   │   ├── pages/            → componente de rota (AboutPage)
+│   │   ├── components/       → seções específicas (hero, história, valores)
+│   │   └── about.routes.ts
+│   └── authentication/    (implementada)
+│       ├── pages/            → LoginPage, RegisterPage
+│       └── authentication.routes.ts
 │
-├── shared/                → UI e utils reutilizáveis, sem regra de negócio
-│   ├── components/         → header, footer, navbar, button, product-card, product-grid, filter
-│   └── utils/               → filterProducts, formatCurrency
+├── shared/                 → UI e utils reutilizáveis, sem regra de negócio
+│   ├── components/           → header, footer, navbar, button, form-field, product-card,
+│   │                            product-grid, filter, cta-section
+│   └── utils/                 → filterProducts, formatCurrency, passwordsMatchValidator
 │
-├── app.ts / app.html      → shell da aplicação (Header + router-outlet + Footer)
-├── app.config.ts          → providers globais (router, repositórios)
-└── app.routes.ts          → registro das rotas de cada feature (lazy loaded)
+├── app.ts / app.html       → shell da aplicação (Header + router-outlet + Footer)
+├── app.config.ts           → providers globais (router, repositórios)
+└── app.routes.ts           → registro das rotas de cada feature (lazy loaded)
 ```
 
 Cada camada tem um `README.md` próprio (`core/domain`, `core/application`,
@@ -75,16 +84,37 @@ ProductSectionComponent
         → futuro: troca por HttpProductRepository, sem mudar mais nada
 ```
 
+### Fluxo de autenticação (exemplo: login)
+
+```
+LoginPage
+  → injeta LoginUseCase (application)
+    → injeta AuthRepository (interface, domain)
+      → resolvido em runtime para MockAuthRepository (infrastructure)
+        → hoje: valida contra usuários mockados em memória
+        → futuro: troca por HttpAuthRepository, sem mudar mais nada
+    → em caso de sucesso, atualiza AuthSessionStore (signal global)
+      → Header reage automaticamente ao novo estado (mostra nome + "Sair")
+```
+
 ## ✅ Implementado até agora
 
 * Estrutura arquitetural completa (`core`, `features`, `shared`)
 * **Home / Landing Page**:
-  * Header sticky com busca, favoritos, carrinho e menu mobile
+  * Header sticky com busca, favoritos, carrinho, conta e menu mobile
   * Hero section
   * Seção de categorias (4 categorias mockadas)
   * Seção de produtos com filtros (categoria, preço, ordenação) — 8 produtos mockados
   * CTA de newsletter
   * Footer com colunas de links
+* **Sobre**: hero editorial, seção de história (texto + imagem) e valores/pilares
+* **Login / Cadastro**:
+  * Formulários com Reactive Forms e validação (obrigatório, e-mail, senha mínima,
+    confirmação de senha)
+  * `MockAuthRepository` simula latência de rede e valida credenciais
+    (usuário de teste: `demo@forme.com` / `123456`)
+  * Sessão do usuário em `AuthSessionStore` (signal), refletida em tempo real no Header
+  * Cadastro loga automaticamente após sucesso
 * Identidade visual: paleta neutra (preto/branco/cinza), tipografia
   Fraunces + Inter, numeração de catálogo nos cards de produto
 * Totalmente responsivo (desktop, tablet, mobile)
@@ -93,11 +123,13 @@ ProductSectionComponent
 
 ## 🚧 Ainda não implementado
 
-* Páginas de Produtos, Categorias, Carrinho, Checkout, Login/Cadastro,
-  Perfil e Favoritos (rotas já referenciadas na navegação, aguardando
-  implementação)
+* Páginas de Produtos, Categorias, Carrinho, Checkout, Perfil e Favoritos
+  (rotas já referenciadas na navegação, aguardando implementação)
+* Rotas protegidas (ex: exigir login para acessar `/perfil`)
+* Persistência de sessão entre reloads (hoje é só em memória)
+* Recuperação de senha
 * Integração com backend/API
-* Autenticação e pagamento
+* Pagamento
 
 ## 🧩 Como adicionar uma nova feature
 
