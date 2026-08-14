@@ -20,5 +20,14 @@ export class FooterComponent {
     { title: 'Sobre', links: ['Nossa história', 'Sustentabilidade'] },
   ];
 
-  readonly social = ['Instagram', 'Pinterest'];
+  readonly social = [
+    {
+      name: 'Instagram',
+      url: 'https://www.instagram.com/seiji_nick/'
+    },
+    {
+      name: 'Pinterest',
+      url: 'https://br.pinterest.com/pin/1133359062490708345/'
+    }
+  ];
 }
