@@ -1,9 +1,14 @@
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
+interface FooterLink {
+  label: string;
+  path?: string;
+}
+
 interface FooterColumn {
   title: string;
-  links: string[];
+  links: FooterLink[];
 }
 
 @Component({
@@ -15,19 +20,32 @@ export class FooterComponent {
   readonly year = new Date().getFullYear();
 
   readonly columns: FooterColumn[] = [
-    { title: 'Loja', links: ['Produtos', 'Categorias', 'Edição Limitada'] },
-    { title: 'Atendimento', links: ['Trocas e devoluções', 'Envio', 'Contato'] },
-    { title: 'Sobre', links: ['Nossa história', 'Sustentabilidade'] },
+    {
+      title: 'Loja',
+      links: [
+        { label: 'Produtos', path: '/produtos' },
+        { label: 'Categorias', path: '/categorias' },
+        { label: 'Edição Limitada' },
+      ],
+    },
+    {
+      title: 'Atendimento',
+      links: [{ label: 'Trocas e devoluções' }, { label: 'Envio' }, { label: 'Contato' }],
+    },
+    {
+      title: 'Sobre',
+      links: [{ label: 'Nossa história', path: '/sobre' }, { label: 'Sustentabilidade' }],
+    },
   ];
 
   readonly social = [
     {
       name: 'Instagram',
-      url: 'https://www.instagram.com/seiji_nick/'
+      url: 'https://www.instagram.com/seiji_nick/',
     },
     {
       name: 'Pinterest',
-      url: 'https://br.pinterest.com/pin/1133359062490708345/'
-    }
+      url: 'https://br.pinterest.com/pin/1133359062490708345/',
+    },
   ];
 }
