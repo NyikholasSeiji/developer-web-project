@@ -1,0 +1,19 @@
+<section class="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
+  <div class="mb-10">
+    <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">Catálogo</p>
+    <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">Produtos</h1>
+  </div>
+
+  @switch (state()) {
+    @case ('loading') {
+      <app-loading-state label="Carregando produtos" />
+    }
+    @case ('unavailable') {
+      <app-service-unavailable
+        title="Produtos temporariamente indisponíveis"
+        message="Estamos preparando o catálogo e ele ainda não pôde ser carregado. Volte em instantes — os produtos aparecerão aqui assim que estiverem disponíveis."
+        (retry)="retry()"
+      />
+    }
+  }
+</section>
