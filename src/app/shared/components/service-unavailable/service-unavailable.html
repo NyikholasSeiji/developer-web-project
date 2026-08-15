@@ -1,0 +1,13 @@
+<div class="border border-line px-6 py-20 text-center sm:py-24" role="alert">
+  <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">503 — Indisponível</p>
+
+  <p class="mt-4 font-display text-xl italic text-ink sm:text-2xl">{{ title() }}</p>
+
+  <p class="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-ink-soft">{{ message() }}</p>
+
+  @if (showRetry()) {
+    <app-button variant="secondary" (click)="retry.emit()" class="mt-8 inline-flex">
+      Tentar novamente
+    </app-button>
+  }
+</div>
