@@ -14,11 +14,14 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/authentication/authentication.routes').then((m) => m.AUTHENTICATION_ROUTES),
   },
-
-  // Próximas features registram suas rotas do mesmo jeito, por exemplo:
-  // {
-  //   path: 'produtos',
-  //   loadChildren: () =>
-  //     import('./features/products/products.routes').then((m) => m.PRODUCTS_ROUTES),
-  // },
+  {
+    path: 'produtos',
+    loadChildren: () =>
+      import('./features/products/products.routes').then((m) => m.PRODUCTS_ROUTES),
+  },
+  {
+    path: 'categorias',
+    loadChildren: () =>
+      import('./features/categories/categories.routes').then((m) => m.CATEGORIES_ROUTES),
+  },
 ];
