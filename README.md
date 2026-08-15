@@ -55,13 +55,20 @@ src/app/
 │   │   ├── pages/            → componente de rota (AboutPage)
 │   │   ├── components/       → seções específicas (hero, história, valores)
 │   │   └── about.routes.ts
-│   └── authentication/    (implementada)
-│       ├── pages/            → LoginPage, RegisterPage
-│       └── authentication.routes.ts
+│   ├── authentication/    (implementada)
+│   │   ├── pages/            → LoginPage, RegisterPage
+│   │   └── authentication.routes.ts
+│   ├── products/          (estrutura pronta — aguardando catálogo real)
+│   │   ├── pages/            → ProductListPage (loading + estado 503)
+│   │   └── products.routes.ts
+│   └── categories/        (estrutura pronta — aguardando catálogo real)
+│       ├── pages/            → CategoryListPage (loading + estado 503)
+│       └── categories.routes.ts
 │
 ├── shared/                 → UI e utils reutilizáveis, sem regra de negócio
 │   ├── components/           → header, footer, navbar, button, form-field, product-card,
-│   │                            product-grid, filter, cta-section
+│   │                            product-grid, filter, cta-section, loading-state,
+│   │                            service-unavailable
 │   └── utils/                 → filterProducts, formatCurrency, passwordsMatchValidator
 │
 ├── app.ts / app.html       → shell da aplicação (Header + router-outlet + Footer)
@@ -115,6 +122,14 @@ LoginPage
     (usuário de teste: `demo@forme.com` / `123456`)
   * Sessão do usuário em `AuthSessionStore` (signal), refletida em tempo real no Header
   * Cadastro loga automaticamente após sucesso
+* **Produtos (`/produtos`) e Categorias (`/categorias`)**:
+  * Estrutura de página pronta para receber o catálogo real futuramente
+  * Sem produtos/categorias mockados nestas páginas — ainda não há fonte de dados
+  * Estado de carregamento (`LoadingState`) com animação CSS minimalista
+  * Estado de erro customizado (`ServiceUnavailable`, "503") consistente com a
+    identidade visual da loja, com botão de tentar novamente
+* **Footer**: links de "Loja" e "Sobre" conectados às rotas reais; Instagram e
+  Pinterest funcionando, abrindo em nova aba
 * Identidade visual: paleta neutra (preto/branco/cinza), tipografia
   Fraunces + Inter, numeração de catálogo nos cards de produto
 * Totalmente responsivo (desktop, tablet, mobile)
@@ -123,7 +138,9 @@ LoginPage
 
 ## 🚧 Ainda não implementado
 
-* Páginas de Produtos, Categorias, Carrinho, Checkout, Perfil e Favoritos
+* Catálogo real de Produtos e Categorias (as páginas existem, mas ainda
+  simulam indisponibilidade — aguardando fonte de dados)
+* Páginas de Carrinho, Checkout, Perfil e Favoritos
   (rotas já referenciadas na navegação, aguardando implementação)
 * Rotas protegidas (ex: exigir login para acessar `/perfil`)
 * Persistência de sessão entre reloads (hoje é só em memória)
