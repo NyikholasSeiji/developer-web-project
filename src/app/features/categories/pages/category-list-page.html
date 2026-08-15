@@ -1,0 +1,19 @@
+<section class="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
+  <div class="mb-10">
+    <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">Catálogo</p>
+    <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">Categorias</h1>
+  </div>
+
+  @switch (state()) {
+    @case ('loading') {
+      <app-loading-state label="Carregando categorias" />
+    }
+    @case ('unavailable') {
+      <app-service-unavailable
+        title="Categorias temporariamente indisponíveis"
+        message="Ainda não conseguimos carregar as categorias da loja. Volte em instantes — em breve você poderá navegar por todas elas aqui."
+        (retry)="retry()"
+      />
+    }
+  }
+</section>
