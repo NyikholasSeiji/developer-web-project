@@ -10,4 +10,6 @@ import { ProductCategory } from '../models/product-category.model';
 export abstract class ProductRepository {
   abstract findAll(): Observable<Product[]>;
   abstract findCategories(): Observable<ProductCategory[]>;
+  /** Retorna `undefined` quando nenhum produto corresponde ao id informado. */
+  abstract findById(id: string): Observable<Product | undefined>;
 }
