@@ -1,4 +1,4 @@
-<article class="group">
+<a [routerLink]="['/produtos', product().id]" class="group block">
   <div class="relative overflow-hidden bg-bg-alt">
     <span class="absolute left-3 top-3 z-10 font-display text-xs italic text-ink/70">
       {{ catalogLabel() }}
@@ -18,9 +18,9 @@
     />
 
     <div class="absolute inset-x-0 bottom-0 translate-y-full bg-bg/95 p-3 text-center transition-transform duration-300 ease-out group-hover:translate-y-0">
-      <button type="button" class="w-full text-[11px] uppercase tracking-[0.14em] text-ink">
+      <span class="block w-full text-[11px] uppercase tracking-[0.14em] text-ink">
         Ver produto
-      </button>
+      </span>
     </div>
   </div>
 
@@ -37,4 +37,4 @@
       }
     </div>
   </div>
-</article>
+</a>

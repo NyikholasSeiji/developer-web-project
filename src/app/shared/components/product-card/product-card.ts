@@ -1,9 +1,11 @@
 import { Component, input } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { Product } from '../../../core/domain/models/product.model';
 import { formatCurrency } from '../../utils/format-currency.util';
 
 @Component({
   selector: 'app-product-card',
+  imports: [RouterLink],
   templateUrl: './product-card.html',
 })
 export class ProductCardComponent {
