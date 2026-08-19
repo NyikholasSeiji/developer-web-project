@@ -1,0 +1,72 @@
+@switch (state()) {
+  @case ('loading') {
+    <section class="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
+      <app-loading-state label="Carregando produto" />
+    </section>
+  }
+  @case ('not-found') {
+    <section class="mx-auto max-w-7xl px-5 py-16 text-center sm:px-8 sm:py-24">
+      <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">404 — Não encontrado</p>
+      <p class="mt-4 font-display text-xl italic text-ink sm:text-2xl">
+        Não encontramos esse produto.
+      </p>
+      <p class="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-ink-soft">
+        Ele pode ter saído do catálogo ou o link pode estar incorreto.
+      </p>
+      <app-button variant="secondary" link="/produtos" class="mt-8 inline-flex">
+        Voltar aos produtos
+      </app-button>
+    </section>
+  }
+  @case ('found') {
+    @if (product(); as product) {
+      <section class="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16">
+        <app-button variant="ghost" link="/produtos" class="mb-8">← Voltar aos produtos</app-button>
+
+        <div class="grid gap-10 sm:grid-cols-2 sm:gap-14">
+          <div class="relative overflow-hidden bg-bg-alt">
+            <span class="absolute left-3 top-3 z-10 font-display text-xs italic text-ink/70">
+              {{ catalogLabel() }}
+            </span>
+
+            @if (product.isOnSale) {
+              <span class="absolute right-3 top-3 z-10 bg-ink px-2.5 py-1 text-[10px] uppercase tracking-[0.1em] text-bg">
+                Promoção
+              </span>
+            }
+
+            <img
+              [src]="product.imageUrl"
+              [alt]="product.name"
+              class="aspect-[4/5] w-full object-cover"
+            />
+          </div>
+
+          <div class="flex flex-col">
+            <p class="text-[11px] uppercase tracking-[0.1em] text-ink-soft">{{ product.category }}</p>
+            <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">{{ product.name }}</h1>
+
+            <div class="mt-4 flex items-baseline gap-3">
+              <p class="text-xl text-ink">{{ formattedPrice() }}</p>
+              @if (formattedPreviousPrice(); as prev) {
+                <p class="text-sm text-ink-soft line-through">{{ prev }}</p>
+              }
+            </div>
+
+            @if (product.description) {
+              <p class="mt-6 max-w-[52ch] text-sm leading-relaxed text-ink-soft">
+                {{ product.description }}
+              </p>
+            }
+
+            <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+              <app-button variant="primary" [disabled]="true" class="sm:w-auto">
+                Adicionar à sacola — em breve
+              </app-button>
+            </div>
+          </div>
+        </div>
+      </section>
+    }
+  }
+}
