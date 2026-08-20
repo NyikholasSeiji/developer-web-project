@@ -4,10 +4,10 @@ import { ProductCategory } from '../../domain/models/product-category.model';
 // id === name de propósito: evita uma tabela de lookup só para casar
 // Product.category (string) com a categoria selecionada no filtro.
 export const MOCK_CATEGORIES: ProductCategory[] = [
-  { id: 'Essenciais', name: 'Essenciais', imageUrl: 'https://picsum.photos/seed/forme-essenciais/600/750' },
-  { id: 'Novidades', name: 'Novidades', imageUrl: 'https://picsum.photos/seed/forme-novidades/600/750' },
-  { id: 'Acessórios', name: 'Acessórios', imageUrl: 'https://picsum.photos/seed/forme-acessorios/600/750' },
-  { id: 'Edição Limitada', name: 'Edição Limitada', imageUrl: 'https://picsum.photos/seed/forme-edicao/600/750' },
+  { id: 'Essenciais', name: 'Essenciais', imageUrl: 'assets/images/1_home_category.jpg' },
+  { id: 'Novidades', name: 'Novidades', imageUrl: 'assets/images/2_home_category.jpg' },
+  { id: 'Acessórios', name: 'Acessórios', imageUrl: 'assets/images/3_home_category.jpg' },
+  { id: 'Edição Limitada', name: 'Edição Limitada', imageUrl: 'assets/images/4_home_category.jpg' },
 ];
 
 export const MOCK_PRODUCTS: Product[] = [
