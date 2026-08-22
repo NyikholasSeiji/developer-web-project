@@ -25,10 +25,18 @@
     <app-button variant="primary" type="submit" [disabled]="loading()">
       {{ loading() ? 'Entrando…' : 'Entrar' }}
     </app-button>
+
+    <a routerLink="/esqueci-senha" class="text-center text-xs text-ink-soft underline underline-offset-4 hover:text-ink">
+      Esqueci minha senha
+    </a>
   </form>
 
   <p class="mt-8 text-center text-sm text-ink-soft">
     Ainda não tem conta?
     <a routerLink="/cadastro" class="text-ink underline underline-offset-4">Criar conta</a>
+  </p>
+
+  <p class="mt-6 text-center text-xs text-ink-soft">
+    Use <span class="text-ink">demo&#64;forme.com</span> / <span class="text-ink">123456</span> para testar.
   </p>
 </section>

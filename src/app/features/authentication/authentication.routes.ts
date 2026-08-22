@@ -9,4 +9,8 @@ export const AUTHENTICATION_ROUTES: Routes = [
     path: 'cadastro',
     loadComponent: () => import('./pages/register-page').then((m) => m.RegisterPage),
   },
+  {
+    path: 'esqueci-senha',
+    loadComponent: () => import('./pages/forgot-password-page').then((m) => m.ForgotPasswordPage),
+  },
 ];
