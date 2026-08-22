@@ -21,6 +21,8 @@ export class FormFieldComponent {
     if (errors['email']) return 'E-mail inválido.';
     if (errors['minlength']) return `Mínimo de ${errors['minlength'].requiredLength} caracteres.`;
     if (errors['mismatch']) return 'As senhas não coincidem.';
+    if (errors['cpf']) return 'CPF inválido.';
+    if (errors['phone']) return 'Telefone inválido.';
     return 'Campo inválido.';
   }
 }
