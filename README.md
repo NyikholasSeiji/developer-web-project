@@ -56,10 +56,10 @@ src/app/
 │   │   ├── components/       → seções específicas (hero, história, valores)
 │   │   └── about.routes.ts
 │   ├── authentication/    (implementada)
-│   │   ├── pages/            → LoginPage, RegisterPage
+│   │   ├── pages/            → LoginPage, RegisterPage, ForgotPasswordPage
 │   │   └── authentication.routes.ts
-│   ├── products/          (estrutura pronta — aguardando catálogo real)
-│   │   ├── pages/            → ProductListPage (loading + estado 503)
+│   ├── products/          (parcial — listagem e detalhe prontos, catálogo real pendente)
+│   │   ├── pages/            → ProductListPage (loading + 503), ProductDetailPage
 │   │   └── products.routes.ts
 │   └── categories/        (estrutura pronta — aguardando catálogo real)
 │       ├── pages/            → CategoryListPage (loading + estado 503)
@@ -69,7 +69,8 @@ src/app/
 │   ├── components/           → header, footer, navbar, button, form-field, product-card,
 │   │                            product-grid, filter, cta-section, loading-state,
 │   │                            service-unavailable
-│   └── utils/                 → filterProducts, formatCurrency, passwordsMatchValidator
+│   └── utils/                 → filterProducts, formatCurrency, passwordsMatchValidator,
+│                                 cpfValidator, phoneValidator
 │
 ├── app.ts / app.html       → shell da aplicação (Header + router-outlet + Footer)
 ├── app.config.ts           → providers globais (router, repositórios)
@@ -104,6 +105,17 @@ LoginPage
       → Header reage automaticamente ao novo estado (mostra nome + "Sair")
 ```
 
+### Fluxo de recuperação de senha
+
+```
+ForgotPasswordPage
+  → injeta RequestPasswordResetUseCase (application)
+    → injeta AuthRepository (interface, domain)
+      → resolvido em runtime para MockAuthRepository (infrastructure)
+        → sempre resolve com sucesso, por design: o cliente nunca revela
+          se um e-mail está ou não cadastrado
+```
+
 ## ✅ Implementado até agora
 
 * Estrutura arquitetural completa (`core`, `features`, `shared`)
@@ -115,16 +127,23 @@ LoginPage
   * CTA de newsletter
   * Footer com colunas de links
 * **Sobre**: hero editorial, seção de história (texto + imagem) e valores/pilares
-* **Login / Cadastro**:
-  * Formulários com Reactive Forms e validação (obrigatório, e-mail, senha mínima,
-    confirmação de senha)
+* **Login / Cadastro / Recuperação de senha**:
+  * Login com Reactive Forms e validação (obrigatório, e-mail, senha mínima)
+  * Cadastro com nome, e-mail, senha, confirmação de senha, **CPF** (validado com o
+    algoritmo oficial dos dígitos verificadores) e **telefone** (10 ou 11 dígitos,
+    com DDD)
   * `MockAuthRepository` simula latência de rede e valida credenciais
     (usuário de teste: `demo@forme.com` / `123456`)
   * Sessão do usuário em `AuthSessionStore` (signal), refletida em tempo real no Header
   * Cadastro loga automaticamente após sucesso
+  * **"Esqueci minha senha"** (`/esqueci-senha`): formulário de e-mail que sempre
+    confirma o envio, sem revelar se o e-mail existe (boa prática de segurança)
+* **Produto — Detalhe (`/produtos/:id`)**:
+  * Busca por id via `GetProductByIdUseCase`, com estados de carregamento e
+    "não encontrado" (404)
+  * Card de produto na Home leva direto para o detalhe ao clicar
 * **Produtos (`/produtos`) e Categorias (`/categorias`)**:
-  * Estrutura de página pronta para receber o catálogo real futuramente
-  * Sem produtos/categorias mockados nestas páginas — ainda não há fonte de dados
+  * Estrutura de listagem pronta para receber o catálogo completo futuramente
   * Estado de carregamento (`LoadingState`) com animação CSS minimalista
   * Estado de erro customizado (`ServiceUnavailable`, "503") consistente com a
     identidade visual da loja, com botão de tentar novamente
@@ -138,13 +157,15 @@ LoginPage
 
 ## 🚧 Ainda não implementado
 
-* Catálogo real de Produtos e Categorias (as páginas existem, mas ainda
-  simulam indisponibilidade — aguardando fonte de dados)
-* Páginas de Carrinho, Checkout, Perfil e Favoritos
+* Listagem completa de Produtos e Categorias com catálogo real (as páginas
+  existem, mas ainda simulam indisponibilidade — aguardando fonte de dados)
+* Busca funcional (o campo no Header hoje é só visual — não filtra nem navega)
+* Carrinho (Cesta), Checkout, Perfil e Favoritos
   (rotas já referenciadas na navegação, aguardando implementação)
+* Redefinição de senha em si (a página `/esqueci-senha` só solicita o envio do
+  link; a tela de "criar nova senha" ainda não existe)
 * Rotas protegidas (ex: exigir login para acessar `/perfil`)
 * Persistência de sessão entre reloads (hoje é só em memória)
-* Recuperação de senha
 * Integração com backend/API
 * Pagamento
 
