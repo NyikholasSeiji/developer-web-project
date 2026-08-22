@@ -25,6 +25,18 @@
       autocomplete="new-password"
       [control]="form.controls.confirmPassword"
     />
+    <app-form-field
+      label="CPF"
+      fieldId="register-cpf"
+      autocomplete="off"
+      [control]="form.controls.cpf"
+    />
+    <app-form-field
+      label="Telefone"
+      fieldId="register-phone"
+      autocomplete="tel"
+      [control]="form.controls.phone"
+    />
 
     @if (errorMessage(); as message) {
       <p class="text-xs text-ink" role="alert">{{ message }}</p>

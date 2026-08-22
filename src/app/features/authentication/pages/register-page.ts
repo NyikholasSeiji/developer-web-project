@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { RegisterUseCase } from '../../../core/application/register.usecase';
 import { FormFieldComponent } from '../../../shared/components/form-field/form-field';
 import { ButtonComponent } from '../../../shared/components/button/button';
-import { passwordsMatchValidator } from '../../../shared/utils/validators.util';
+import { passwordsMatchValidator, cpfValidator, phoneValidator } from '../../../shared/utils/validators.util';
 
 @Component({
   selector: 'app-register-page',
@@ -25,6 +25,8 @@ export class RegisterPage {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
+      cpf: ['', [Validators.required, cpfValidator()]],
+      phone: ['', [Validators.required, phoneValidator()]],
     },
     { validators: passwordsMatchValidator('password', 'confirmPassword') },
   );
