@@ -24,4 +24,11 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/categories/categories.routes').then((m) => m.CATEGORIES_ROUTES),
   },
+  {
+    path: 'busca',
+    loadChildren: () =>
+      import('./features/search/search.routes').then((m) => m.SEARCH_ROUTES),
+  },
+
+  // Próximas features registram suas rotas do mesmo jeito.
 ];
