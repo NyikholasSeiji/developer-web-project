@@ -1,6 +1,14 @@
 import { Product } from '../../core/domain/models/product.model';
 import { ProductFilter } from '../../core/domain/models/product-filter.model';
 
+/** Normaliza para comparação: minúsculas e sem acentos ("Óculos" → "oculos"). */
+function normalize(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
 /**
  * Filtragem 100% client-side, aplicada sobre a lista já carregada.
  * Fica em shared/utils (e não em application) porque hoje não envolve
@@ -10,6 +18,11 @@ import { ProductFilter } from '../../core/domain/models/product-filter.model';
  */
 export function filterProducts(products: Product[], filter: ProductFilter): Product[] {
   let result = products;
+
+  if (filter.query) {
+    const query = normalize(filter.query);
+    result = result.filter((p) => normalize(p.name).includes(query));
+  }
 
   if (filter.categoryId) {
     result = result.filter((p) => p.category === filter.categoryId);
