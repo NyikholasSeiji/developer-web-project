@@ -71,11 +71,14 @@
   @if (isSearchOpen()) {
     <div class="border-t border-line bg-bg">
       <div class="mx-auto max-w-7xl px-5 py-4 sm:px-8">
-        <input
-          type="search"
-          placeholder="Buscar produtos…"
-          class="w-full border-b border-line bg-transparent py-2 font-display text-lg italic text-ink placeholder:text-ink-soft focus:outline-none"
-        />
+        <form (ngSubmit)="onSearchSubmit(searchInput.value); searchInput.value = ''">
+          <input
+            #searchInput
+            type="search"
+            placeholder="Buscar produtos…"
+            class="w-full border-b border-line bg-transparent py-2 font-display text-lg italic text-ink placeholder:text-ink-soft focus:outline-none"
+          />
+        </form>
       </div>
     </div>
   }

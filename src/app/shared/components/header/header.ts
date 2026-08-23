@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar';
 import { AuthSessionStore } from '../../../core/application/auth-session.store';
 import { LogoutUseCase } from '../../../core/application/logout.usecase';
@@ -10,6 +10,7 @@ import { LogoutUseCase } from '../../../core/application/logout.usecase';
   templateUrl: './header.html',
 })
 export class HeaderComponent {
+  private readonly router = inject(Router);
   private readonly session = inject(AuthSessionStore);
   private readonly logoutUseCase = inject(LogoutUseCase);
 
@@ -21,6 +22,14 @@ export class HeaderComponent {
 
   onLogout(): void {
     this.logoutUseCase.execute();
+  }
+
+  onSearchSubmit(term: string): void {
+    const trimmed = term.trim();
+    if (!trimmed) return;
+
+    this.router.navigate(['/busca'], { queryParams: { q: trimmed } });
+    this.isSearchOpen.set(false);
   }
 
   toggleSearch(): void {
