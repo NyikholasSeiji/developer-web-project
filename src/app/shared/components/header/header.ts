@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { NavbarComponent } from '../navbar/navbar';
 import { AuthSessionStore } from '../../../core/application/auth-session.store';
 import { LogoutUseCase } from '../../../core/application/logout.usecase';
+import { CartStore } from '../../../core/application/cart.store';
 
 @Component({
   selector: 'app-header',
@@ -13,9 +14,11 @@ export class HeaderComponent {
   private readonly router = inject(Router);
   private readonly session = inject(AuthSessionStore);
   private readonly logoutUseCase = inject(LogoutUseCase);
+  private readonly cart = inject(CartStore);
 
   readonly currentUser = this.session.user;
   readonly isAuthenticated = this.session.isAuthenticated;
+  readonly cartQuantity = this.cart.totalQuantity;
 
   readonly isSearchOpen = signal(false);
   readonly isMobileMenuOpen = signal(false);
