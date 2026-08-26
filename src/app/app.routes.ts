@@ -29,6 +29,11 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/search/search.routes').then((m) => m.SEARCH_ROUTES),
   },
+  {
+    path: 'carrinho',
+    loadChildren: () =>
+      import('./features/cart/cart.routes').then((m) => m.CART_ROUTES),
+  },
 
   // Próximas features registram suas rotas do mesmo jeito.
 ];
