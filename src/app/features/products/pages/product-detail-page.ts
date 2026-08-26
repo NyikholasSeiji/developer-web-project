@@ -1,5 +1,7 @@
 import { Component, inject, input, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { GetProductByIdUseCase } from '../../../core/application/get-product-by-id.usecase';
+import { AddToCartUseCase } from '../../../core/application/add-to-cart.usecase';
 import { Product } from '../../../core/domain/models/product.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { ButtonComponent } from '../../../shared/components/button/button';
@@ -22,6 +24,8 @@ type DetailState = 'loading' | 'found' | 'not-found';
 })
 export class ProductDetailPage {
   private readonly getProductById = inject(GetProductByIdUseCase);
+  private readonly addToCartUseCase = inject(AddToCartUseCase);
+  private readonly router = inject(Router);
 
   id = input.required<string>();
 
@@ -30,6 +34,14 @@ export class ProductDetailPage {
 
   constructor() {
     this.load();
+  }
+
+  addToCart(): void {
+    const product = this.product();
+    if (!product) return;
+
+    this.addToCartUseCase.execute(product);
+    this.router.navigate(['/carrinho']);
   }
 
   private load(): void {
