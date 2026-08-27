@@ -1,46 +1,72 @@
-import { Component, signal } from '@angular/core';
-import { timer } from 'rxjs';
+import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
+import { ListCategoriesUseCase } from '../../../core/application/list-categories.usecase';
+import { ListProductsUseCase } from '../../../core/application/list-products.usecase';
+import { ProductCategory } from '../../../core/domain/models/product-category.model';
+import { Product } from '../../../core/domain/models/product.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { ServiceUnavailableComponent } from '../../../shared/components/service-unavailable/service-unavailable';
 
-type CategoryListState = 'loading' | 'unavailable';
+interface CategoryWithCount extends ProductCategory {
+  productCount: number;
+}
 
 /**
- * Página de listagem de categorias.
- *
- * Assim como em `/produtos`, ainda não há uma fonte de dados real aqui.
- * A página está estruturalmente pronta para receber, por categoria: nome,
- * imagem, quantidade de produtos e link para os produtos daquela categoria
- * (ver `ProductCategory` em core/domain e `ListCategoriesUseCase` em
- * core/application, já usados pela Home). Por ora, ela simula o carregamento
- * e cai em um estado de indisponibilidade (503).
- *
- * Quando a listagem completa de categorias estiver pronta para esta página,
- * troque `simulateFetch()` pela chamada real:
- *   private readonly listCategories = inject(ListCategoriesUseCase);
- *   this.listCategories.execute().subscribe({
- *     next: (categories) => { ... },
- *     error: () => this.state.set('unavailable'),
- *   });
+ * Página de listagem de categorias (`/categorias`), com catálogo real.
+ * Cada categoria mostra nome, imagem, quantidade de produtos (calculada a
+ * partir do catálogo) e leva para `/produtos?categoria=<id>` já filtrado.
  */
 @Component({
   selector: 'app-category-list-page',
-  imports: [LoadingStateComponent, ServiceUnavailableComponent],
+  imports: [RouterLink, LoadingStateComponent, ServiceUnavailableComponent],
   templateUrl: './category-list-page.html',
 })
 export class CategoryListPage {
-  readonly state = signal<CategoryListState>('loading');
+  private readonly listCategories = inject(ListCategoriesUseCase);
+  private readonly listProducts = inject(ListProductsUseCase);
+
+  private readonly categories = signal<ProductCategory[] | null>(null);
+  private readonly products = signal<Product[] | null>(null);
+  readonly hasError = signal(false);
+
+  readonly isLoading = computed(
+    () => (this.categories() === null || this.products() === null) && !this.hasError(),
+  );
+
+  readonly categoriesWithCount = computed<CategoryWithCount[]>(() => {
+    const categories = this.categories();
+    const products = this.products();
+    if (!categories || !products) return [];
+
+    return categories.map((category) => ({
+      ...category,
+      productCount: products.filter((product) => product.category === category.id).length,
+    }));
+  });
 
   constructor() {
-    this.simulateFetch();
+    this.load();
   }
 
   retry(): void {
-    this.simulateFetch();
+    this.load();
   }
 
-  private simulateFetch(): void {
-    this.state.set('loading');
-    timer(1200).subscribe(() => this.state.set('unavailable'));
+  private load(): void {
+    this.hasError.set(false);
+    this.categories.set(null);
+    this.products.set(null);
+
+    forkJoin({
+      categories: this.listCategories.execute(),
+      products: this.listProducts.execute(),
+    }).subscribe({
+      next: ({ categories, products }) => {
+        this.categories.set(categories);
+        this.products.set(products);
+      },
+      error: () => this.hasError.set(true),
+    });
   }
 }
