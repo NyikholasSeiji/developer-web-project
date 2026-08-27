@@ -1,4 +1,4 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { GetProductByIdUseCase } from '../../../core/application/get-product-by-id.usecase';
 import { AddToCartUseCase } from '../../../core/application/add-to-cart.usecase';
@@ -33,7 +33,14 @@ export class ProductDetailPage {
   readonly product = signal<Product | null>(null);
 
   constructor() {
-    this.load();
+    // `id` é um input required ligado por withComponentInputBinding — o
+    // Angular só garante um valor DEPOIS do construtor rodar, então ler
+    // this.id() aqui direto lança NG0950. effect() roda depois, e também
+    // reage se o :id mudar (ex: navegar de um produto pra outro sem sair
+    // da rota).
+    effect(() => {
+      this.load(this.id());
+    });
   }
 
   addToCart(): void {
@@ -44,11 +51,11 @@ export class ProductDetailPage {
     this.router.navigate(['/carrinho']);
   }
 
-  private load(): void {
+  private load(id: string): void {
     this.state.set('loading');
     this.product.set(null);
 
-    this.getProductById.execute(this.id()).subscribe((product) => {
+    this.getProductById.execute(id).subscribe((product) => {
       if (product) {
         this.product.set(product);
         this.state.set('found');
