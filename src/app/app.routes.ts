@@ -34,6 +34,11 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/cart/cart.routes').then((m) => m.CART_ROUTES),
   },
+  {
+    path: 'perfil',
+    loadChildren: () =>
+      import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
+  },
 
   // Próximas features registram suas rotas do mesmo jeito.
 ];
