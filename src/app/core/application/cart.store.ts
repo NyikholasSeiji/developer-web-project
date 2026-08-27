@@ -1,15 +1,19 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, effect, signal } from '@angular/core';
 import { CartItem } from '../domain/models/cart-item.model';
 import { Product } from '../domain/models/product.model';
+import { readFromLocalStorage, writeToLocalStorage } from '../../shared/utils/local-storage.util';
+
+const STORAGE_KEY = 'fnshop:cart';
 
 /**
- * Estado da sacola de compras, em memória (signal). Como a AuthSessionStore,
- * não é um caso de uso — é o estado que os casos de uso de carrinho
- * atualizam, e que a UI (Header, CartPage) lê diretamente.
+ * Estado da sacola de compras, em memória (signal) e persistido em
+ * localStorage. Como a AuthSessionStore, não é um caso de uso — é o
+ * estado que os casos de uso de carrinho atualizam, e que a UI
+ * (Header, CartPage) lê diretamente.
  */
 @Injectable({ providedIn: 'root' })
 export class CartStore {
-  private readonly _items = signal<CartItem[]>([]);
+  private readonly _items = signal<CartItem[]>(readFromLocalStorage<CartItem[]>(STORAGE_KEY) ?? []);
 
   readonly items = this._items.asReadonly();
 
@@ -18,6 +22,10 @@ export class CartStore {
   readonly totalPrice = computed(() =>
     this._items().reduce((sum, item) => sum + item.product.price * item.quantity, 0),
   );
+
+  constructor() {
+    effect(() => writeToLocalStorage(STORAGE_KEY, this._items()));
+  }
 
   addItem(product: Product, quantity = 1): void {
     const items = this._items();
