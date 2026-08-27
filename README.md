@@ -13,7 +13,7 @@ Este README é atualizado conforme o projeto evolui.
 * TypeScript
 * Tailwind CSS v4
 * RxJS
-* Signals (`signal`, `computed`, `toSignal`)
+* Signals (`signal`, `computed`, `effect`, `toSignal`)
 * Reactive Forms (`FormGroup`, `Validators`)
 
 ## ▶️ Executando o projeto
@@ -36,44 +36,41 @@ Acesse:
 http://localhost:4200
 ```
 
+Usuário de teste (login): `demo@forme.com` / `123456`
+
 ## 🏗️ Arquitetura
 
 ```text
 src/app/
 ├── core/
-│   ├── domain/           → entidades e contratos (Product, User, AuthRepository...), sem Angular
-│   ├── application/      → casos de uso (ex: ListProductsUseCase, LoginUseCase) e stores de estado (AuthSessionStore)
+│   ├── domain/           → entidades e contratos (Product, User, CartItem, AuthRepository...), sem Angular
+│   ├── application/      → casos de uso (ex: ListProductsUseCase, LoginUseCase, AddToCartUseCase)
+│   │                        e stores de estado (AuthSessionStore, CartStore)
 │   ├── infrastructure/   → implementações concretas dos contratos (hoje: mock)
-│   └── config/           → wiring de DI: liga interface (domain) → implementação (infrastructure)
+│   ├── config/           → wiring de DI: liga interface (domain) → implementação (infrastructure)
+│   └── guards/           → guards de rota (authGuard), separados de config (DI) e application (casos de uso)
 │
 ├── features/              → uma pasta por fatia de negócio, carregada via lazy loading
 │   ├── home/               (implementada)
-│   │   ├── pages/            → componente de rota (HomePage)
-│   │   ├── components/       → seções específicas da Home (hero, categorias, produtos, CTA)
-│   │   └── home.routes.ts
 │   ├── about/              (implementada)
-│   │   ├── pages/            → componente de rota (AboutPage)
-│   │   ├── components/       → seções específicas (hero, história, valores)
-│   │   └── about.routes.ts
-│   ├── authentication/    (implementada)
-│   │   ├── pages/            → LoginPage, RegisterPage, ForgotPasswordPage
-│   │   └── authentication.routes.ts
-│   ├── products/          (parcial — listagem e detalhe prontos, catálogo real pendente)
-│   │   ├── pages/            → ProductListPage (loading + 503), ProductDetailPage
-│   │   └── products.routes.ts
-│   └── categories/        (estrutura pronta — aguardando catálogo real)
-│       ├── pages/            → CategoryListPage (loading + estado 503)
-│       └── categories.routes.ts
+│   ├── authentication/    (implementada) → LoginPage, RegisterPage, ForgotPasswordPage
+│   ├── products/          (implementada) → ProductListPage (catálogo real + filtros), ProductDetailPage
+│   ├── categories/        (implementada) → CategoryListPage (catálogo real, com contagem de produtos)
+│   ├── search/             (implementada) → SearchPage (`/busca?q=`)
+│   ├── cart/               (implementada) → CartPage (`/carrinho`)
+│   ├── profile/            (implementada) → ProfilePage (`/perfil`, rota protegida)
+│   └── checkout/          (vazia — próxima a implementar)
 │
 ├── shared/                 → UI e utils reutilizáveis, sem regra de negócio
 │   ├── components/           → header, footer, navbar, button, form-field, product-card,
 │   │                            product-grid, filter, cta-section, loading-state,
 │   │                            service-unavailable
-│   └── utils/                 → filterProducts, formatCurrency, passwordsMatchValidator,
-│                                 cpfValidator, phoneValidator
+│   └── utils/                 → filterProducts (com busca por nome), formatCurrency,
+│                                 passwordsMatchValidator, cpfValidator, phoneValidator,
+│                                 local-storage.util (persistência de sessão/carrinho)
 │
 ├── app.ts / app.html       → shell da aplicação (Header + router-outlet + Footer)
-├── app.config.ts           → providers globais (router, repositórios)
+├── app.config.ts           → providers globais (router com withComponentInputBinding, repositórios)
 └── app.routes.ts           → registro das rotas de cada feature (lazy loaded)
 ```
 
@@ -84,7 +81,7 @@ responsabilidade e como estender.
 ### Fluxo de dados (exemplo: produtos)
 
 ```
-ProductSectionComponent
+ProductListPage / ProductSectionComponent (Home)
   → injeta ListProductsUseCase (application)
     → injeta ProductRepository (interface, domain)
       → resolvido em runtime para MockProductRepository (infrastructure)
@@ -101,7 +98,7 @@ LoginPage
       → resolvido em runtime para MockAuthRepository (infrastructure)
         → hoje: valida contra usuários mockados em memória
         → futuro: troca por HttpAuthRepository, sem mudar mais nada
-    → em caso de sucesso, atualiza AuthSessionStore (signal global)
+    → em caso de sucesso, atualiza AuthSessionStore (signal, persistido em localStorage)
       → Header reage automaticamente ao novo estado (mostra nome + "Sair")
 ```
 
@@ -116,39 +113,57 @@ ForgotPasswordPage
           se um e-mail está ou não cadastrado
 ```
 
+### Fluxo de carrinho
+
+```
+ProductDetailPage ("Comprar")
+  → injeta AddToCartUseCase (application)
+    → atualiza CartStore (signal, persistido em localStorage)
+      → Header (badge) e CartPage reagem automaticamente ao novo estado
+  → navega para /carrinho
+```
+
+### Rota protegida (exemplo: perfil)
+
+```
+/perfil
+  → authGuard (core/guards) verifica AuthSessionStore.isAuthenticated()
+    → autenticado: libera a rota
+    → não autenticado: redireciona para /login
+```
+
 ## ✅ Implementado até agora
 
 * Estrutura arquitetural completa (`core`, `features`, `shared`)
-* **Home / Landing Page**:
-  * Header sticky com busca, favoritos, carrinho, conta e menu mobile
-  * Hero section
-  * Seção de categorias (4 categorias mockadas)
-  * Seção de produtos com filtros (categoria, preço, ordenação) — 8 produtos mockados
-  * CTA de newsletter
-  * Footer com colunas de links
-* **Sobre**: hero editorial, seção de história (texto + imagem) e valores/pilares
+* **Home / Landing Page**: header sticky, hero, categorias, produtos com filtros
+  (categoria, preço, ordenação, busca por nome), CTA de newsletter, footer
+* **Sobre**: hero editorial, história e valores/pilares
 * **Login / Cadastro / Recuperação de senha**:
-  * Login com Reactive Forms e validação (obrigatório, e-mail, senha mínima)
-  * Cadastro com nome, e-mail, senha, confirmação de senha, **CPF** (validado com o
-    algoritmo oficial dos dígitos verificadores) e **telefone** (10 ou 11 dígitos,
-    com DDD)
-  * `MockAuthRepository` simula latência de rede e valida credenciais
-    (usuário de teste: `demo@forme.com` / `123456`)
-  * Sessão do usuário em `AuthSessionStore` (signal), refletida em tempo real no Header
-  * Cadastro loga automaticamente após sucesso
-  * **"Esqueci minha senha"** (`/esqueci-senha`): formulário de e-mail que sempre
-    confirma o envio, sem revelar se o e-mail existe (boa prática de segurança)
-* **Produto — Detalhe (`/produtos/:id`)**:
-  * Busca por id via `GetProductByIdUseCase`, com estados de carregamento e
-    "não encontrado" (404)
-  * Card de produto na Home leva direto para o detalhe ao clicar
-* **Produtos (`/produtos`) e Categorias (`/categorias`)**:
-  * Estrutura de listagem pronta para receber o catálogo completo futuramente
-  * Estado de carregamento (`LoadingState`) com animação CSS minimalista
-  * Estado de erro customizado (`ServiceUnavailable`, "503") consistente com a
-    identidade visual da loja, com botão de tentar novamente
-* **Footer**: links de "Loja" e "Sobre" conectados às rotas reais; Instagram e
-  Pinterest funcionando, abrindo em nova aba
+  * Login e cadastro com Reactive Forms e validação completa (obrigatório,
+    e-mail, senha mínima, confirmação de senha, **CPF** com dígito
+    verificador, **telefone** com DDD)
+  * **"Esqueci minha senha"** (`/esqueci-senha`): sempre confirma o envio,
+    sem revelar se o e-mail existe (boa prática de segurança)
+  * Sessão do usuário em `AuthSessionStore`, **persistida em localStorage**
+    (sobrevive a reload)
+* **Produtos (`/produtos`) e Categorias (`/categorias`)**: catálogo real
+  (mesma fonte de dados da Home), com filtros, contagem de produtos por
+  categoria, e estados de loading/erro (503) reais — não mais simulados
+* **Produto — Detalhe (`/produtos/:id`)**: busca por id, estados de
+  carregamento e "não encontrado" (404), botão "Comprar" que adiciona ao
+  carrinho e navega para a Cesta
+* **Busca (`/busca?q=`)**: campo de busca no Header totalmente funcional,
+  navega para a página de resultados; busca por nome, ignorando
+  maiúsculas/acentos
+* **Carrinho (`/carrinho`)**: adicionar, alterar quantidade, remover e
+  limpar itens; total calculado automaticamente; badge no Header reflete a
+  quantidade real; **persistido em localStorage**
+* **Perfil (`/perfil`)**: primeira rota protegida do projeto (`authGuard`,
+  redireciona para `/login` se não autenticado); mostra nome, e-mail, CPF e
+  telefone do usuário logado
+* **Footer**: Loja (Produtos, Categorias, Carrinho, Minha conta, Edição
+  Limitada — já filtrando por categoria), Sobre, redes sociais (Instagram e
+  Pinterest) funcionando, abrindo em nova aba
 * Identidade visual: paleta neutra (preto/branco/cinza), tipografia
   Fraunces + Inter, numeração de catálogo nos cards de produto
 * Totalmente responsivo (desktop, tablet, mobile)
@@ -157,15 +172,10 @@ ForgotPasswordPage
 
 ## 🚧 Ainda não implementado
 
-* Listagem completa de Produtos e Categorias com catálogo real (as páginas
-  existem, mas ainda simulam indisponibilidade — aguardando fonte de dados)
-* Busca funcional (o campo no Header hoje é só visual — não filtra nem navega)
-* Carrinho (Cesta), Checkout, Perfil e Favoritos
-  (rotas já referenciadas na navegação, aguardando implementação)
-* Redefinição de senha em si (a página `/esqueci-senha` só solicita o envio do
-  link; a tela de "criar nova senha" ainda não existe)
-* Rotas protegidas (ex: exigir login para acessar `/perfil`)
-* Persistência de sessão entre reloads (hoje é só em memória)
+* Checkout e Favoritos (rotas já referenciadas na navegação)
+* "Finalizar compra" no carrinho fica desabilitado até o Checkout existir
+* Redefinição de senha em si (a página `/esqueci-senha` só solicita o envio
+  do link; a tela de "criar nova senha" ainda não existe)
 * Integração com backend/API
 * Pagamento
 
@@ -181,4 +191,5 @@ Resumo:
 5. Tela em `features/<nome>/pages`, componentes locais em `features/<nome>/components`,
    UI reaproveitável em `shared/components`.
 6. Rota lazy-loaded registrada em `features/<nome>/<nome>.routes.ts` e
-   referenciada em `app.routes.ts`.
+   referenciada em `app.routes.ts`. Rota exige login? Adiciona
+   `canActivate: [authGuard]`.
