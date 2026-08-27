@@ -4,16 +4,24 @@
     <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">Produtos</h1>
   </div>
 
-  @switch (state()) {
-    @case ('loading') {
-      <app-loading-state label="Carregando produtos" />
-    }
-    @case ('unavailable') {
-      <app-service-unavailable
-        title="Produtos temporariamente indisponíveis"
-        message="Estamos preparando o catálogo e ele ainda não pôde ser carregado. Volte em instantes — os produtos aparecerão aqui assim que estiverem disponíveis."
-        (retry)="retry()"
-      />
-    }
+  @if (isLoading()) {
+    <app-loading-state label="Carregando produtos" />
+  } @else if (hasError()) {
+    <app-service-unavailable
+      title="Produtos temporariamente indisponíveis"
+      message="Não conseguimos carregar o catálogo agora. Tente novamente em instantes."
+      (retry)="retry()"
+    />
+  } @else {
+    <app-filter
+      [categories]="categories()"
+      [filter]="filter()"
+      (filterChange)="onFilterChange($event)"
+      (clear)="onClearFilter()"
+    />
+
+    <div class="mt-10">
+      <app-product-grid [products]="filteredProducts()" />
+    </div>
   }
 </section>
