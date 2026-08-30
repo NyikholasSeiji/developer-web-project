@@ -5,15 +5,19 @@
       <h2 class="mt-2 font-display text-3xl text-ink">Produtos em destaque</h2>
     </div>
 
-    <app-filter
-      [categories]="categories()"
-      [filter]="filter()"
-      (filterChange)="onFilterChange($event)"
-      (clear)="onClearFilter()"
-    />
+    @if (isLoading()) {
+      <app-loading-state label="Carregando produtos" />
+    } @else {
+      <app-filter
+        [categories]="categories()"
+        [filter]="filter()"
+        (filterChange)="onFilterChange($event)"
+        (clear)="onClearFilter()"
+      />
 
-    <div class="mt-10">
-      <app-product-grid [products]="filteredProducts()" />
-    </div>
+      <div class="mt-10">
+        <app-product-grid [products]="filteredProducts()" />
+      </div>
+    }
   </div>
 </section>

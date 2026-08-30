@@ -16,11 +16,11 @@ const NETWORK_DELAY_MS = 500;
 @Injectable()
 export class MockProductRepository implements ProductRepository {
   findAll(): Observable<Product[]> {
-    return of(MOCK_PRODUCTS);
+    return of(MOCK_PRODUCTS).pipe(delay(NETWORK_DELAY_MS));
   }
 
   findCategories(): Observable<ProductCategory[]> {
-    return of(MOCK_CATEGORIES);
+    return of(MOCK_CATEGORIES).pipe(delay(NETWORK_DELAY_MS));
   }
 
   findById(id: string): Observable<Product | undefined> {

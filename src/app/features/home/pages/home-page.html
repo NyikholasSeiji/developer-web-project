@@ -1,4 +1,14 @@
 <app-hero-section />
-<app-categories-section [categories]="categories()" />
+
+@if (categoriesLoading()) {
+  <section class="border-b border-line py-16 sm:py-20">
+    <div class="mx-auto max-w-7xl px-5 sm:px-8">
+      <app-loading-state label="Carregando categorias" />
+    </div>
+  </section>
+} @else {
+  <app-categories-section [categories]="categoriesValue()" />
+}
+
 <app-product-section />
 <app-cta-section />
