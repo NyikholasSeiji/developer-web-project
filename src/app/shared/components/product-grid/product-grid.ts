@@ -9,4 +9,5 @@ import { ProductCardComponent } from '../product-card/product-card';
 })
 export class ProductGridComponent {
   products = input.required<Product[]>();
+  emptyMessage = input<string>('Nenhum produto encontrado com esses filtros.');
 }

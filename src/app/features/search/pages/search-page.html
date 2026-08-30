@@ -16,6 +16,6 @@
   @if (isLoading()) {
     <app-loading-state label="Carregando produtos" />
   } @else if (q()) {
-    <app-product-grid [products]="results()" />
+    <app-product-grid [products]="results()" [emptyMessage]="'Nenhum produto encontrado para &quot;' + q() + '&quot;.'" />
   }
 </section>
