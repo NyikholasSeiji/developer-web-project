@@ -39,6 +39,19 @@ export const routes: Routes = [
     loadChildren: () =>
       import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
   },
+  {
+    path: 'favoritos',
+    loadComponent: () =>
+      import('./features/favorites/pages/favorites-page').then((m) => m.FavoritesPage),
+  },
 
   // Próximas features registram suas rotas do mesmo jeito.
+
+  // Wildcard: sempre por último — qualquer rota que não bateu com nenhuma
+  // acima cai aqui, em vez de deixar o router-outlet em branco.
+  {
+    path: '**',
+    loadComponent: () =>
+      import('./features/not-found/pages/not-found-page').then((m) => m.NotFoundPage),
+  },
 ];
