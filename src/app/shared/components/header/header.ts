@@ -27,6 +27,11 @@ export class HeaderComponent {
     this.logoutUseCase.execute();
   }
 
+  onMobileLogout(): void {
+    this.onLogout();
+    this.closeMobileMenu();
+  }
+
   onSearchSubmit(term: string): void {
     const trimmed = term.trim();
     if (!trimmed) return;
