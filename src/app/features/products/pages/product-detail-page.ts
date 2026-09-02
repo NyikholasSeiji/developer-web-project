@@ -1,5 +1,6 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 import { GetProductByIdUseCase } from '../../../core/application/get-product-by-id.usecase';
 import { AddToCartUseCase } from '../../../core/application/add-to-cart.usecase';
 import { Product } from '../../../core/domain/models/product.model';
@@ -26,6 +27,7 @@ export class ProductDetailPage {
   private readonly getProductById = inject(GetProductByIdUseCase);
   private readonly addToCartUseCase = inject(AddToCartUseCase);
   private readonly router = inject(Router);
+  private readonly titleService = inject(Title);
 
   id = input.required<string>();
 
@@ -59,8 +61,10 @@ export class ProductDetailPage {
       if (product) {
         this.product.set(product);
         this.state.set('found');
+        this.titleService.setTitle(`${product.name} — FNShop`);
       } else {
         this.state.set('not-found');
+        this.titleService.setTitle('Produto não encontrado — FNShop');
       }
     });
   }

@@ -41,6 +41,7 @@ export const routes: Routes = [
   },
   {
     path: 'favoritos',
+    title: 'Favoritos — FNShop',
     loadComponent: () =>
       import('./features/favorites/pages/favorites-page').then((m) => m.FavoritesPage),
   },
@@ -51,6 +52,7 @@ export const routes: Routes = [
   // acima cai aqui, em vez de deixar o router-outlet em branco.
   {
     path: '**',
+    title: 'Página não encontrada — FNShop',
     loadComponent: () =>
       import('./features/not-found/pages/not-found-page').then((m) => m.NotFoundPage),
   },

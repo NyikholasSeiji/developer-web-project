@@ -5,9 +5,11 @@
     [type]="type()"
     [formControl]="control()"
     [autocomplete]="autocomplete()"
+    [attr.aria-invalid]="errorMessage() ? true : null"
+    [attr.aria-describedby]="errorMessage() ? fieldId() + '-error' : null"
     class="border-b border-line bg-transparent py-2 text-sm text-ink placeholder:text-ink-soft focus:outline-none focus:border-ink"
   />
   @if (errorMessage(); as message) {
-    <span class="text-xs text-ink">{{ message }}</span>
+    <span [id]="fieldId() + '-error'" class="text-xs text-ink" role="alert">{{ message }}</span>
   }
 </div>
