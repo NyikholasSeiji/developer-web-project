@@ -1,0 +1,79 @@
+<section class="mx-auto max-w-2xl px-5 py-16 sm:px-8 sm:py-20">
+  @switch (state()) {
+    @case ('payment') {
+      @if (items().length === 0) {
+        <div class="border border-line py-24 text-center">
+          <p class="font-display text-lg italic text-ink-soft">Sua sacola está vazia.</p>
+          <app-button variant="secondary" link="/produtos" class="mt-7 inline-flex">
+            Ver produtos
+          </app-button>
+        </div>
+      } @else {
+        <div class="mb-10">
+          <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">Pagamento</p>
+          <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">Finalizar compra</h1>
+        </div>
+
+        <div class="border border-line p-6">
+          <p class="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Resumo</p>
+          <div class="mt-3 flex items-center justify-between">
+            <span class="text-sm text-ink-soft">
+              {{ items().length }} {{ items().length === 1 ? 'item' : 'itens' }}
+            </span>
+            <span class="font-display text-xl text-ink">{{ formattedTotal() }}</span>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <p class="text-[11px] uppercase tracking-[0.1em] text-ink-soft">Forma de pagamento</p>
+          <div class="mt-4 flex flex-col gap-3" role="radiogroup" aria-label="Forma de pagamento">
+            @for (method of methods; track method.id) {
+              <button
+                type="button"
+                role="radio"
+                [attr.aria-checked]="selectedMethodId() === method.id"
+                (click)="selectMethod(method.id)"
+                class="flex items-center justify-between border px-5 py-4 text-left transition-colors duration-200"
+                [class]="selectedMethodId() === method.id ? 'border-ink' : 'border-line hover:border-ink/40'"
+              >
+                <span>
+                  <span class="block text-sm text-ink">{{ method.label }}</span>
+                  <span class="block text-xs text-ink-soft">{{ method.description }}</span>
+                </span>
+                <span
+                  class="h-4 w-4 shrink-0 rounded-full border"
+                  [class]="selectedMethodId() === method.id ? 'border-ink bg-ink' : 'border-line'"
+                  aria-hidden="true"
+                ></span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <app-button variant="primary" (click)="pay()" class="mt-10 w-full">
+          Pagar {{ formattedTotal() }}
+        </app-button>
+
+        <p class="mt-4 text-center text-xs text-ink-soft">
+          Ambiente de demonstração — nenhum pagamento real é processado.
+        </p>
+      }
+    }
+    @case ('processing') {
+      <app-loading-state label="Processando pagamento" />
+    }
+    @case ('confirmed') {
+      <div class="border border-line py-24 text-center">
+        <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">Pedido nº {{ orderNumber() }}</p>
+        <p class="mt-4 font-display text-2xl italic text-ink sm:text-3xl">Compra finalizada!</p>
+        <p class="mx-auto mt-4 max-w-[42ch] text-sm leading-relaxed text-ink-soft">
+          Pagamento de {{ formattedPaidTotal() }} confirmado. Agora é só aguardar — você vai
+          receber atualizações sobre o envio por e-mail.
+        </p>
+        <app-button variant="secondary" link="/produtos" class="mt-8 inline-flex">
+          Continuar comprando
+        </app-button>
+      </div>
+    }
+  }
+</section>

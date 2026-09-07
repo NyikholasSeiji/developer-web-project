@@ -35,6 +35,11 @@ export const routes: Routes = [
       import('./features/cart/cart.routes').then((m) => m.CART_ROUTES),
   },
   {
+    path: 'checkout',
+    loadChildren: () =>
+      import('./features/checkout/checkout.routes').then((m) => m.CHECKOUT_ROUTES),
+  },
+  {
     path: 'perfil',
     loadChildren: () =>
       import('./features/profile/profile.routes').then((m) => m.PROFILE_ROUTES),
