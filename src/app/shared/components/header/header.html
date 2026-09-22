@@ -70,20 +70,57 @@
     </div>
   </div>
 
-  @if (isSearchOpen()) {
-    <div class="border-t border-line bg-bg">
-      <div class="mx-auto max-w-7xl px-5 py-4 sm:px-8">
-        <form (ngSubmit)="onSearchSubmit(searchInput.value); searchInput.value = ''">
+@if (isSearchOpen()) {
+  <div class="border-t border-line bg-bg">
+    <div class="mx-auto max-w-7xl px-5 py-4 sm:px-8">
+
+      <div class="relative">
+
+        <form
+          (submit)="$event.preventDefault(); onSearchSubmit(searchInput.value)"
+        >
+
           <input
             #searchInput
             type="search"
             placeholder="Buscar produtos…"
+            autocomplete="off"
             class="w-full border-b border-line bg-transparent py-2 font-display text-lg italic text-ink placeholder:text-ink-soft focus:outline-none"
+            (input)="onSearchChange(searchInput.value)"
           />
+
         </form>
+
+        @if (searchSuggestions().length > 0) {
+
+          <div
+            class="absolute left-0 right-0 top-full z-50 overflow-hidden border border-line bg-bg shadow-lg"
+          >
+
+            @for (
+              suggestion of searchSuggestions();
+              track suggestion
+            ) {
+
+              <button
+                type="button"
+                class="block w-full border-b border-line px-4 py-3 text-left text-sm text-ink transition-colors last:border-b-0 hover:bg-ink/5"
+                (click)="selectSearchSuggestion(suggestion)"
+              >
+                {{ suggestion }}
+              </button>
+
+            }
+
+          </div>
+
+        }
+
       </div>
+
     </div>
-  }
+  </div>
+}
 
   @if (isMobileMenuOpen()) {
     <div class="lg:hidden border-t border-line bg-bg px-5 py-6 sm:px-8">
