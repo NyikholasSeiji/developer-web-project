@@ -1,21 +1,133 @@
 <section class="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
+
+  <!-- =========================
+       CABEÇALHO
+       ========================= -->
+
   <div class="mb-10">
-    <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">Busca</p>
+
+    <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">
+      Busca
+    </p>
+
     @if (q()) {
+
       <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">
-        Resultados para <span class="italic">"{{ q() }}"</span>
+        Resultados para
+        <span class="italic">
+          "{{ q() }}"
+        </span>
       </h1>
+
     } @else {
-      <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">Buscar produtos</h1>
+
+      <h1 class="mt-2 font-display text-3xl text-ink sm:text-4xl">
+        Buscar produtos
+      </h1>
+
       <p class="mt-3 max-w-[46ch] text-sm leading-relaxed text-ink-soft">
-        Use o ícone de busca no topo da página para encontrar um produto pelo nome.
+        Use a busca abaixo para encontrar um produto pelo nome.
       </p>
+
     }
+
+    <!-- =========================
+         CAMPO DE BUSCA
+         ========================= -->
+
+    <div class="relative mt-6 max-w-2xl">
+
+      <form
+        class="flex"
+        (submit)="submitSearch(); $event.preventDefault()"
+      >
+
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="onSearchChange($any($event.target).value)"
+          placeholder="Digite o nome de um produto..."
+          class="w-full rounded-l-md border border-gray-300 px-4 py-3 text-sm outline-none focus:border-black"
+        />
+
+        <button
+          type="submit"
+          class="rounded-r-md bg-black px-6 py-3 text-sm text-white"
+        >
+          Buscar
+        </button>
+
+      </form>
+
+      <!-- =========================
+           AUTOCOMPLETE
+           ========================= -->
+
+      @if (suggestions().length > 0) {
+
+        <div
+          class="absolute left-0 right-0 top-full z-20 border border-t-0 border-gray-200 bg-white shadow-lg"
+        >
+
+          @for (
+            suggestion of suggestions();
+            track suggestion
+          ) {
+
+            <button
+              type="button"
+              class="block w-full px-4 py-3 text-left text-sm hover:bg-gray-100"
+              (click)="selectItem(suggestion)"
+            >
+              {{ suggestion }}
+            </button>
+
+          }
+
+        </div>
+
+      }
+
+    </div>
+
   </div>
 
+
+  <!-- =========================
+       CARREGAMENTO
+       ========================= -->
+
   @if (isLoading()) {
-    <app-loading-state label="Carregando produtos" />
-  } @else if (q()) {
-    <app-product-grid [products]="results()" [emptyMessage]="'Nenhum produto encontrado para &quot;' + q() + '&quot;.'" />
+
+    <app-loading-state
+      label="Carregando produtos"
+    />
+
   }
+
+  <!-- =========================
+       RESULTADOS
+       ========================= -->
+
+  @else if (q()) {
+
+    <app-product-grid
+      [products]="results()"
+      [emptyMessage]="'Nenhum produto encontrado para &quot;' + q() + '&quot;.'"
+    />
+
+  }
+
+  <!-- =========================
+       SEM BUSCA
+       ========================= -->
+
+  @else {
+
+    <p class="text-sm text-ink-soft">
+      Digite o nome de um produto para começar a busca.
+    </p>
+
+  }
+
 </section>
