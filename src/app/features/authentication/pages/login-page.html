@@ -33,7 +33,7 @@
 
   <p class="mt-8 text-center text-sm text-ink-soft">
     Ainda não tem conta?
-    <a routerLink="/cadastro" class="text-ink underline underline-offset-4">Criar conta</a>
+    <a [routerLink]="['/cadastro']" [queryParams]="redirectQueryParams()" class="text-ink underline underline-offset-4">Criar conta</a>
   </p>
 
   <p class="mt-6 text-center text-xs text-ink-soft">

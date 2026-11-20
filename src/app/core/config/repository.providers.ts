@@ -1,15 +1,15 @@
 import { Provider } from '@angular/core';
 import { ProductRepository } from '../domain/repositories/product-repository';
-import { MockProductRepository } from '../infrastructure/mock/mock-product-repository';
+import { HttpProductRepository } from '../infrastructure/http/http-product-repository';
 import { AuthRepository } from '../domain/repositories/auth-repository';
 import { MockAuthRepository } from '../infrastructure/mock/mock-auth-repository';
 
 /**
  * Amarra cada interface de repositório à sua implementação atual.
- * Hoje aponta para o mock; no futuro, troca-se apenas aqui por um
- * HttpProductRepository/HttpAuthRepository, sem tocar em application ou features.
+ * Produtos já vêm da API Spring Boot; autenticação continua no mock até
+ * o fluxo de login ser integrado.
  */
 export const REPOSITORY_PROVIDERS: Provider[] = [
-  { provide: ProductRepository, useClass: MockProductRepository },
+  { provide: ProductRepository, useClass: HttpProductRepository },
   { provide: AuthRepository, useClass: MockAuthRepository },
 ];
