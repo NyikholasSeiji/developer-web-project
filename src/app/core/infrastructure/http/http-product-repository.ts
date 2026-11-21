@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, map, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Product } from '../../domain/models/product.model';
 import { ProductCategory } from '../../domain/models/product-category.model';
 import { ProductRepository } from '../../domain/repositories/product-repository';
@@ -71,7 +71,6 @@ export class HttpProductRepository implements ProductRepository {
           imageUrl: FALLBACK_CATEGORY_IMAGE,
         }));
       }),
-      catchError(() => of([])),
     );
   }
 
