@@ -40,6 +40,9 @@ export class HeaderComponent {
 
   onLogout(): void {
     this.logoutUseCase.execute();
+    // A sacola é exclusiva de contas: ao sair, volta para a home em vez de
+    // permanecer numa rota protegida (agora sem sessão).
+    this.router.navigateByUrl('/');
   }
 
   onMobileLogout(): void {

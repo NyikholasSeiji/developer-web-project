@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { GetProductByIdUseCase } from '../../../core/application/get-product-by-id.usecase';
 import { AddToCartUseCase } from '../../../core/application/add-to-cart.usecase';
+import { AuthSessionStore } from '../../../core/application/auth-session.store';
 import { Product } from '../../../core/domain/models/product.model';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { ButtonComponent } from '../../../shared/components/button/button';
@@ -26,6 +27,7 @@ type DetailState = 'loading' | 'found' | 'not-found';
 export class ProductDetailPage {
   private readonly getProductById = inject(GetProductByIdUseCase);
   private readonly addToCartUseCase = inject(AddToCartUseCase);
+  private readonly session = inject(AuthSessionStore);
   private readonly router = inject(Router);
   private readonly titleService = inject(Title);
 
@@ -33,6 +35,7 @@ export class ProductDetailPage {
 
   readonly state = signal<DetailState>('loading');
   readonly product = signal<Product | null>(null);
+  readonly isAuthenticated = this.session.isAuthenticated;
 
   constructor() {
     // `id` é um input required ligado por withComponentInputBinding — o
@@ -48,6 +51,15 @@ export class ProductDetailPage {
   addToCart(): void {
     const product = this.product();
     if (!product) return;
+
+    // A sacola é exclusiva de contas cadastradas: visitante vai para o
+    // login e volta para este produto depois de entrar/cadastrar.
+    if (!this.isAuthenticated()) {
+      this.router.navigate(['/login'], {
+        queryParams: { returnUrl: `/produtos/${product.id}` },
+      });
+      return;
+    }
 
     this.addToCartUseCase.execute(product);
     this.router.navigate(['/carrinho']);

@@ -8,9 +8,9 @@ interface MockUserRecord {
 }
 
 /**
- * "Banco de dados" em memória, só dura a sessão do navegador (recarregou,
- * some). Serve pra testar login/registro sem precisar de backend ainda.
- * Usuário de teste: demo@forme.com / 123456
+ * "Banco de dados" em memória, usado como fallback do AuthRepository quando
+ * o backend está indisponível. Só dura a sessão do navegador (recarregou,
+ * some). Usuário de teste: demo@forme.com / 123456
  */
 export const MOCK_USERS: MockUserRecord[] = [
   {

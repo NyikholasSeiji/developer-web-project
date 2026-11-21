@@ -6,18 +6,23 @@ Wiring da Dependency Inversion: liga cada interface (port) de `domain/repositori
 Esse é o único lugar que "conhece" as duas pontas (domain e infrastructure) — é
 proposital, para manter o resto do app dependendo só das interfaces.
 
-## Exemplo de uso futuro
+## O que tem aqui
 
 ```ts
 // core/config/repository.providers.ts
-import { Provider } from '@angular/core';
-import { ProductRepository } from '../domain/repositories/product-repository';
-import { HttpProductRepository } from '../infrastructure/http/http-product-repository';
-
 export const REPOSITORY_PROVIDERS: Provider[] = [
+  MockProductRepository,
+  MockAuthRepository,
   { provide: ProductRepository, useClass: HttpProductRepository },
+  { provide: AuthRepository, useClass: HttpAuthRepository },
 ];
 ```
+
+Os mocks são registrados para poderem ser injetados pelos repositórios HTTP como
+fallback. Quem consome (application/features) continua injetando apenas
+`ProductRepository`/`AuthRepository`.
+
+`api.config.ts` guarda a URL base da API (`http://localhost:8081/api`).
 
 E registrado uma vez em `app.config.ts`:
 
@@ -25,7 +30,7 @@ E registrado uma vez em `app.config.ts`:
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withFetch()),
     ...REPOSITORY_PROVIDERS,
   ],
 };
@@ -33,5 +38,3 @@ export const appConfig: ApplicationConfig = {
 
 Assim, um serviço de `application` pode injetar `ProductRepository` (a interface) sem
 nunca saber que por trás existe um `HttpProductRepository`.
-
-Nenhum provider foi criado ainda — será adicionado junto com a primeira interface real.

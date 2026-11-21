@@ -2,6 +2,12 @@
   <p class="text-center text-[11px] uppercase tracking-[0.14em] text-ink-soft">Bem-vinda de volta</p>
   <h1 class="mt-4 text-center font-display text-3xl text-ink">Entrar na conta</h1>
 
+  @if (isCartFlow) {
+    <p class="mt-4 text-center text-sm leading-relaxed text-ink-soft">
+      A sacola é exclusiva para contas cadastradas. Entre ou crie uma conta para continuar.
+    </p>
+  }
+
   <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-10 flex flex-col gap-6" novalidate>
     <app-form-field
       label="E-mail"
@@ -33,10 +39,11 @@
 
   <p class="mt-8 text-center text-sm text-ink-soft">
     Ainda não tem conta?
-    <a routerLink="/cadastro" class="text-ink underline underline-offset-4">Criar conta</a>
+    <a routerLink="/cadastro" [queryParams]="{ returnUrl: returnUrl }" class="text-ink underline underline-offset-4">Criar conta</a>
   </p>
 
   <p class="mt-6 text-center text-xs text-ink-soft">
-    Use <span class="text-ink">demo&#64;forme.com</span> / <span class="text-ink">123456</span> para testar.
+    Modo offline (sem backend): use <span class="text-ink">demo&#64;forme.com</span> /
+    <span class="text-ink">123456</span> para testar.
   </p>
 </section>

@@ -15,7 +15,7 @@ Camada de casos de uso. Orquestra o `domain` para responder a uma intenção do 
 - Um serviço de application deve ter uma responsabilidade única — evite "classes
   Deus" que fazem tudo relacionado a uma feature inteira.
 
-## Exemplo de uso futuro
+## Exemplo
 
 ```ts
 // core/application/list-products.usecase.ts
@@ -29,5 +29,6 @@ export class ListProductsUseCase {
 }
 ```
 
-Nenhum caso de uso foi criado ainda — será adicionado conforme cada feature for
-implementada.
+Os casos de uso reais (`ListProductsUseCase`, `LoginUseCase`, `AddToCartUseCase`...)
+seguem esse formato. Os stores de estado (`AuthSessionStore`, `CartStore`) também
+ficam aqui: não são ações, mas o estado que os casos de uso atualizam e a UI lê.

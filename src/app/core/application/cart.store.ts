@@ -1,19 +1,30 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { CartItem } from '../domain/models/cart-item.model';
 import { Product } from '../domain/models/product.model';
-import { readFromLocalStorage, writeToLocalStorage } from '../../shared/utils/local-storage.util';
+import {
+  readFromLocalStorage,
+  removeFromLocalStorage,
+  writeToLocalStorage,
+} from '../../shared/utils/local-storage.util';
+import { AuthSessionStore } from './auth-session.store';
 
 const STORAGE_KEY = 'fnshop:cart';
 
 /**
  * Estado da sacola de compras, em memória (signal) e persistido em
- * localStorage. Como a AuthSessionStore, não é um caso de uso — é o
- * estado que os casos de uso de carrinho atualizam, e que a UI
- * (Header, CartPage) lê diretamente.
+ * localStorage.
+ *
+ * A sacola é exclusiva de contas cadastradas: só carrega/persiste itens
+ * quando há sessão ativa e é esvaziada ao sair. Assim, uma sacola antiga de
+ * outra pessoa (ou de antes do login) nunca vaza para um visitante.
  */
 @Injectable({ providedIn: 'root' })
 export class CartStore {
-  private readonly _items = signal<CartItem[]>(readFromLocalStorage<CartItem[]>(STORAGE_KEY) ?? []);
+  private readonly session = inject(AuthSessionStore);
+
+  private readonly _items = signal<CartItem[]>(
+    this.session.isAuthenticated() ? (readFromLocalStorage<CartItem[]>(STORAGE_KEY) ?? []) : [],
+  );
 
   readonly items = this._items.asReadonly();
 
@@ -24,7 +35,17 @@ export class CartStore {
   );
 
   constructor() {
-    effect(() => writeToLocalStorage(STORAGE_KEY, this._items()));
+    effect(() => {
+      if (!this.session.isAuthenticated()) {
+        if (this._items().length > 0) {
+          this._items.set([]);
+        }
+        removeFromLocalStorage(STORAGE_KEY);
+        return;
+      }
+
+      writeToLocalStorage(STORAGE_KEY, this._items());
+    });
   }
 
   addItem(product: Product, quantity = 1): void {

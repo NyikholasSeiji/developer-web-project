@@ -43,13 +43,17 @@
   <button
     type="button"
     (click)="onAddToCart()"
-    [attr.aria-label]="'Adicionar ' + product().name + ' à sacola'"
+    [attr.aria-label]="
+      isAuthenticated()
+        ? 'Adicionar ' + product().name + ' à sacola'
+        : 'Entrar para adicionar ' + product().name + ' à sacola'
+    "
     [class]="
       justAdded()
         ? 'mt-3 w-full border border-ink bg-ink py-2 text-[11px] uppercase tracking-[0.14em] text-bg transition-colors duration-200'
         : 'mt-3 w-full border border-line py-2 text-[11px] uppercase tracking-[0.14em] text-ink transition-colors duration-200 hover:border-ink hover:bg-ink hover:text-bg'
     "
   >
-    {{ justAdded() ? 'Adicionado ✓' : 'Comprar' }}
+    {{ buttonLabel() }}
   </button>
 </div>

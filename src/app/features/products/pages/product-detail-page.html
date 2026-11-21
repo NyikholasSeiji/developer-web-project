@@ -61,9 +61,16 @@
 
             <div class="mt-10 flex flex-col gap-3 sm:flex-row">
               <app-button variant="primary" (click)="addToCart()" class="sm:w-auto">
-                Comprar
+                {{ isAuthenticated() ? 'Comprar' : 'Entrar para comprar' }}
               </app-button>
             </div>
+
+            @if (!isAuthenticated()) {
+              <p class="mt-4 max-w-[52ch] text-xs leading-relaxed text-ink-soft">
+                A sacola é exclusiva para contas cadastradas. Entre ou crie uma conta para
+                adicionar este item.
+              </p>
+            }
           </div>
         </div>
       </section>

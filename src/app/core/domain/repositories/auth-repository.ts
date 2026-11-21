@@ -4,9 +4,10 @@ import { LoginCredentials } from '../models/login-credentials.model';
 import { RegisterData } from '../models/register-data.model';
 
 /**
- * Contrato (port) para autenticação. Hoje resolvido por MockAuthRepository;
- * quando a API existir, troca-se o binding em core/config sem tocar em
- * application ou features.
+ * Contrato (port) para autenticação. Em runtime é resolvido por
+ * HttpAuthRepository (API real), que usa MockAuthRepository como fallback
+ * quando o backend está indisponível. Nada em application/features precisa
+ * saber qual dos dois está ativo.
  */
 export abstract class AuthRepository {
   abstract login(credentials: LoginCredentials): Observable<User>;

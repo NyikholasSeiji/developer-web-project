@@ -49,6 +49,6 @@
 
   <p class="mt-8 text-center text-sm text-ink-soft">
     Já tem conta?
-    <a routerLink="/login" class="text-ink underline underline-offset-4">Entrar</a>
+    <a routerLink="/login" [queryParams]="{ returnUrl: returnUrl }" class="text-ink underline underline-offset-4">Entrar</a>
   </p>
 </section>

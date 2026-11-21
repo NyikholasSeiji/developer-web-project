@@ -9,9 +9,11 @@ import { MOCK_CATEGORIES, MOCK_PRODUCTS } from './mock-products.data';
 const NETWORK_DELAY_MS = 500;
 
 /**
- * Implementação temporária de ProductRepository usando dados mockados.
- * Quando a API existir, basta criar HttpProductRepository e trocar o
- * binding em core/config — nada em application ou features muda.
+ * Catálogo local de fallback do ProductRepository.
+ *
+ * É usado pelo HttpProductRepository quando a API está fora do ar/vazia, e
+ * também para complementar campos de vitrine (categoria, imagem) que o
+ * backend não guarda. O binding principal fica em core/config.
  */
 @Injectable()
 export class MockProductRepository implements ProductRepository {
