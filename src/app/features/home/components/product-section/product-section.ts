@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
-import { ListProductsUseCase } from '../../../../core/application/list-products.usecase';
+import { ListShowcaseUseCase } from '../../../../core/application/list-showcase.usecase';
 import { ListCategoriesUseCase } from '../../../../core/application/list-categories.usecase';
 import { DEFAULT_PRODUCT_FILTER, ProductFilter } from '../../../../core/domain/models/product-filter.model';
 import { Product } from '../../../../core/domain/models/product.model';
@@ -16,7 +16,7 @@ import { LoadingStateComponent } from '../../../../shared/components/loading-sta
   templateUrl: './product-section.html',
 })
 export class ProductSectionComponent {
-  private readonly listProducts = inject(ListProductsUseCase);
+  private readonly listShowcase = inject(ListShowcaseUseCase);
   private readonly listCategories = inject(ListCategoriesUseCase);
 
   private readonly products = signal<Product[] | null>(null);
@@ -33,7 +33,7 @@ export class ProductSectionComponent {
 
   constructor() {
     forkJoin({
-      products: this.listProducts.execute(),
+      products: this.listShowcase.execute(),
       categories: this.listCategories.execute(),
     }).subscribe(({ products, categories }) => {
       this.products.set(products);

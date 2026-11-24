@@ -57,6 +57,18 @@ export class HttpProductRepository implements ProductRepository {
       .pipe(map((produto) => (produto.codigo === 0 ? undefined : this.toProduct(produto))));
   }
 
+  findShowcase(): Observable<Product[]> {
+    return this.http
+      .get<ProdutoDto[]>(`${API_BASE_URL}/api/produto/vitrine`)
+      .pipe(map((produtos) => produtos.map((produto) => this.toProduct(produto))));
+  }
+
+  search(term: string): Observable<Product[]> {
+    return this.http
+      .get<ProdutoDto[]>(`${API_BASE_URL}/api/produto/busca/${encodeURIComponent(term)}`)
+      .pipe(map((produtos) => produtos.map((produto) => this.toProduct(produto))));
+  }
+
   /**
    * A API ainda não expõe categorias. Derivamos a lista a partir dos produtos
    * retornados; quando o backend ganhar esse campo, basta trocar esta chamada.

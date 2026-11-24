@@ -19,6 +19,7 @@ export class ForgotPasswordPage {
   readonly loading = signal(false);
   readonly state = signal<ForgotPasswordState>('form');
   readonly submittedEmail = signal('');
+  readonly errorMessage = signal<string | null>(null);
 
   readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -31,12 +32,19 @@ export class ForgotPasswordPage {
     }
 
     this.loading.set(true);
+    this.errorMessage.set(null);
     const email = this.form.getRawValue().email;
 
-    this.requestPasswordReset.execute(email).subscribe(() => {
-      this.loading.set(false);
-      this.submittedEmail.set(email);
-      this.state.set('sent');
+    this.requestPasswordReset.execute(email).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.submittedEmail.set(email);
+        this.state.set('sent');
+      },
+      error: (err: Error) => {
+        this.loading.set(false);
+        this.errorMessage.set(err.message);
+      },
     });
   }
 }

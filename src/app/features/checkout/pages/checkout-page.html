@@ -50,6 +50,19 @@
           </div>
         </div>
 
+        <form [formGroup]="form" class="mt-8" novalidate (ngSubmit)="pay()">
+          <app-form-field
+            label="Endereço de entrega"
+            fieldId="checkout-delivery"
+            autocomplete="street-address"
+            [control]="form.controls.delivery"
+          />
+        </form>
+
+        @if (errorMessage(); as message) {
+          <p class="mt-6 text-xs text-ink" role="alert">{{ message }}</p>
+        }
+
         <app-button variant="primary" (click)="pay()" class="mt-10 w-full">
           Pagar {{ formattedTotal() }}
         </app-button>

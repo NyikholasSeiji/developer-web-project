@@ -1,7 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CartStore } from '../../../core/application/cart.store';
-import { ClearCartUseCase } from '../../../core/application/clear-cart.usecase';
+import { PlaceOrderUseCase } from '../../../core/application/place-order.usecase';
 import { ButtonComponent } from '../../../shared/components/button/button';
+import { FormFieldComponent } from '../../../shared/components/form-field/form-field';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
 import { formatCurrency } from '../../../shared/utils/format-currency.util';
 
@@ -21,19 +23,18 @@ const PAYMENT_METHODS: PaymentMethod[] = [
 ];
 
 /**
- * Checkout "de mentirinha" (`/checkout`): não existe gateway de pagamento
- * real, nem pedido persistido em lugar nenhum — é só a simulação completa
- * do fluxo (escolher forma de pagamento → "processar" → confirmação),
- * finalizando com ClearCartUseCase.
+ * Checkout (`/checkout`): o pagamento é simulado, mas o pedido é gravado
+ * de verdade na API (POST /api/pedido) e aparece em "Meus pedidos".
  */
 @Component({
   selector: 'app-checkout-page',
-  imports: [ButtonComponent, LoadingStateComponent],
+  imports: [ButtonComponent, FormFieldComponent, LoadingStateComponent, ReactiveFormsModule],
   templateUrl: './checkout-page.html',
 })
 export class CheckoutPage {
   private readonly cart = inject(CartStore);
-  private readonly clearCartUseCase = inject(ClearCartUseCase);
+  private readonly placeOrder = inject(PlaceOrderUseCase);
+  private readonly fb = inject(FormBuilder);
 
   readonly items = this.cart.items;
   readonly totalPrice = this.cart.totalPrice;
@@ -41,9 +42,14 @@ export class CheckoutPage {
   readonly methods = PAYMENT_METHODS;
   readonly selectedMethodId = signal(PAYMENT_METHODS[0].id);
   readonly state = signal<CheckoutState>('payment');
+  readonly errorMessage = signal<string | null>(null);
 
   readonly orderNumber = signal('');
   private readonly paidTotal = signal(0);
+
+  readonly form = this.fb.nonNullable.group({
+    delivery: ['', [Validators.required, Validators.minLength(5)]],
+  });
 
   formattedTotal(): string {
     return formatCurrency(this.totalPrice());
@@ -58,20 +64,27 @@ export class CheckoutPage {
   }
 
   pay(): void {
-    this.state.set('processing');
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const method = PAYMENT_METHODS.find((m) => m.id === this.selectedMethodId()) ?? PAYMENT_METHODS[0];
     const totalSnapshot = this.totalPrice();
 
-    // Simula a latência de um processamento real de pagamento.
-    setTimeout(() => {
-      this.paidTotal.set(totalSnapshot);
-      this.orderNumber.set(this.generateOrderNumber());
-      this.clearCartUseCase.execute();
-      this.state.set('confirmed');
-    }, 1500);
-  }
+    this.errorMessage.set(null);
+    this.state.set('processing');
 
-  private generateOrderNumber(): string {
-    const random = Math.floor(100000 + Math.random() * 900000);
-    return `FN-${random}`;
+    this.placeOrder.execute({ delivery: this.form.getRawValue().delivery, paymentMethod: method.label }).subscribe({
+      next: (order) => {
+        this.paidTotal.set(totalSnapshot);
+        this.orderNumber.set(order.id);
+        this.state.set('confirmed');
+      },
+      error: (err: Error) => {
+        this.errorMessage.set(err.message);
+        this.state.set('payment');
+      },
+    });
   }
 }

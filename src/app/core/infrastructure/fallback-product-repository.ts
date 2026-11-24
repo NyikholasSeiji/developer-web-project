@@ -49,6 +49,20 @@ export class FallbackProductRepository implements ProductRepository {
     );
   }
 
+  findShowcase(): Observable<Product[]> {
+    return this.withFallback(
+      () => this.api.findShowcase(),
+      () => this.mock.findShowcase(),
+    );
+  }
+
+  search(term: string): Observable<Product[]> {
+    return this.withFallback(
+      () => this.api.search(term),
+      () => this.mock.search(term),
+    );
+  }
+
   private withFallback<T>(fromApi: () => Observable<T>, fromMock: () => Observable<T>): Observable<T> {
     if (this.offline) {
       return fromMock();
