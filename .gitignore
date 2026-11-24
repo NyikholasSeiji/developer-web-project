@@ -68,12 +68,45 @@ yarn-error.log*
 /.nb-gradle/
 
 # ==================================================
-# Sistema, logs e segredos
+# Assistentes de IA (Claude Code e similares)
+# ==================================================
+CLAUDE.md
+CLAUDE.local.md
+**/CLAUDE.md
+**/CLAUDE.local.md
+.claude/
+**/.claude/
+.cursor/
+.aider*
+.copilot/
+
+# ==================================================
+# Segredos e credenciais
+# ==================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+secrets/
+credentials*.json
+# Configs locais do Spring com senhas (ex.: MySQL/Postgres)
+/backend/src/main/resources/application-local.properties
+/backend/src/main/resources/application-*.local.properties
+
+# ==================================================
+# Sistema e logs
 # ==================================================
 .DS_Store
 Thumbs.db
 desktop.ini
 *.log
 logs/
-.env
-.env.*
+*.tmp
+*.bak
+*.swp
