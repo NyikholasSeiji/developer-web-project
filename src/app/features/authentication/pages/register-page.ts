@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RegisterUseCase } from '../../../core/application/register.usecase';
 import { FormFieldComponent } from '../../../shared/components/form-field/form-field';
 import { ButtonComponent } from '../../../shared/components/button/button';
@@ -15,6 +15,7 @@ export class RegisterPage {
   private readonly fb = inject(FormBuilder);
   private readonly registerUseCase = inject(RegisterUseCase);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly loading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -45,12 +46,18 @@ export class RegisterPage {
     this.registerUseCase.execute(data).subscribe({
       next: () => {
         this.loading.set(false);
-        this.router.navigateByUrl('/');
+        this.router.navigateByUrl(this.redirectTarget());
       },
       error: (err: Error) => {
         this.loading.set(false);
         this.errorMessage.set(err.message);
       },
     });
+  }
+
+  /** Após cadastrar, volta para a rota que exigia login (ex.: /checkout). */
+  private redirectTarget(): string {
+    const redirect = this.route.snapshot.queryParamMap.get('redirect');
+    return redirect && redirect.startsWith('/') ? redirect : '/';
   }
 }

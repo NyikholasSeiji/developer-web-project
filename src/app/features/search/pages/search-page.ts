@@ -1,11 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { catchError, concat, map, of, switchMap } from 'rxjs';
 
 import { ListProductsUseCase } from '../../../core/application/list-products.usecase';
-import { DEFAULT_PRODUCT_FILTER } from '../../../core/domain/models/product-filter.model';
-import { filterProducts } from '../../../shared/utils/filter-products.util';
+import { SearchProductsUseCase } from '../../../core/application/search-products.usecase';
+import { Product } from '../../../core/domain/models/product.model';
 
 import { ProductGridComponent } from '../../../shared/components/product-grid/product-grid';
 import { LoadingStateComponent } from '../../../shared/components/loading-state/loading-state';
@@ -25,6 +25,7 @@ export class SearchPage {
   // =========================
 
   private readonly listProducts = inject(ListProductsUseCase);
+  private readonly searchProducts = inject(SearchProductsUseCase);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -42,7 +43,7 @@ export class SearchPage {
   );
 
   // =========================
-  // PRODUTOS
+  // PRODUTOS (usados só no autocomplete)
   // =========================
 
   private readonly products = toSignal(
@@ -52,26 +53,29 @@ export class SearchPage {
     }
   );
 
+  // =========================
+  // RESULTADOS DA BUSCA (GET /api/produto/busca/{termo})
+  // =========================
+
+  /** `null` enquanto a busca do termo atual está em andamento. */
+  private readonly searchResults = toSignal(
+    this.route.queryParamMap.pipe(
+      map((params) => params.get('q') ?? ''),
+      switchMap((term) =>
+        concat(
+          of(null),
+          this.searchProducts.execute(term).pipe(catchError(() => of([] as Product[]))),
+        ),
+      ),
+    ),
+    { initialValue: null },
+  );
+
   readonly isLoading = computed(() => {
-    return this.products() === null;
+    return this.searchResults() === null;
   });
 
-  // =========================
-  // RESULTADOS DA BUSCA
-  // =========================
-
-  readonly results = computed(() => {
-    const products = this.products();
-
-    if (!products) {
-      return [];
-    }
-
-    return filterProducts(products, {
-      ...DEFAULT_PRODUCT_FILTER,
-      query: this.q(),
-    });
-  });
+  readonly results = computed(() => this.searchResults() ?? []);
 
   // =========================
   // AUTOCOMPLETE

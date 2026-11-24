@@ -16,4 +16,9 @@ export const AUTHENTICATION_ROUTES: Routes = [
     title: 'Recuperar senha — FNShop',
     loadComponent: () => import('./pages/forgot-password-page').then((m) => m.ForgotPasswordPage),
   },
+  {
+    path: 'redefinir-senha',
+    title: 'Definir nova senha — FNShop',
+    loadComponent: () => import('./pages/change-password-page').then((m) => m.ChangePasswordPage),
+  },
 ];

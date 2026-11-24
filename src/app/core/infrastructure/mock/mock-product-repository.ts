@@ -4,6 +4,8 @@ import { delay } from 'rxjs/operators';
 import { ProductRepository } from '../../domain/repositories/product-repository';
 import { Product } from '../../domain/models/product.model';
 import { ProductCategory } from '../../domain/models/product-category.model';
+import { DEFAULT_PRODUCT_FILTER } from '../../domain/models/product-filter.model';
+import { filterProducts } from '../../../shared/utils/filter-products.util';
 import { MOCK_CATEGORIES, MOCK_PRODUCTS } from './mock-products.data';
 
 const NETWORK_DELAY_MS = 500;
@@ -26,5 +28,15 @@ export class MockProductRepository implements ProductRepository {
   findById(id: string): Observable<Product | undefined> {
     const product = MOCK_PRODUCTS.find((p) => p.id === id);
     return of(product).pipe(delay(NETWORK_DELAY_MS));
+  }
+
+  /** Sem campo de destaque no mock: a vitrine é o catálogo inteiro. */
+  findShowcase(): Observable<Product[]> {
+    return this.findAll();
+  }
+
+  search(term: string): Observable<Product[]> {
+    const results = filterProducts(MOCK_PRODUCTS, { ...DEFAULT_PRODUCT_FILTER, query: term });
+    return of(results).pipe(delay(NETWORK_DELAY_MS));
   }
 }

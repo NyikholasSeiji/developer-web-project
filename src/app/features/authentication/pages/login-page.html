@@ -33,10 +33,12 @@
 
   <p class="mt-8 text-center text-sm text-ink-soft">
     Ainda não tem conta?
-    <a routerLink="/cadastro" class="text-ink underline underline-offset-4">Criar conta</a>
+    <a [routerLink]="['/cadastro']" [queryParams]="redirectQueryParams()" class="text-ink underline underline-offset-4">Criar conta</a>
   </p>
 
   <p class="mt-6 text-center text-xs text-ink-soft">
-    Use <span class="text-ink">demo&#64;forme.com</span> / <span class="text-ink">123456</span> para testar.
+    Redefiniu a senha recentemente?
+    <a routerLink="/redefinir-senha" class="text-ink underline underline-offset-4">Defina a nova senha</a>
+    antes de entrar.
   </p>
 </section>

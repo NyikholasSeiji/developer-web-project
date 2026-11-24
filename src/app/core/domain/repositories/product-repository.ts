@@ -12,4 +12,8 @@ export abstract class ProductRepository {
   abstract findCategories(): Observable<ProductCategory[]>;
   /** Retorna `undefined` quando nenhum produto corresponde ao id informado. */
   abstract findById(id: string): Observable<Product | undefined>;
+  /** Produtos marcados como destaque, na ordem da vitrine. */
+  abstract findShowcase(): Observable<Product[]>;
+  /** Busca textual por nome/descrição. */
+  abstract search(term: string): Observable<Product[]>;
 }

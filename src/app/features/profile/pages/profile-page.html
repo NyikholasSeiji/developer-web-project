@@ -5,31 +5,101 @@
   </div>
 
   @if (user(); as user) {
-    <div class="border border-line divide-y divide-line">
-      <div class="flex items-center justify-between px-6 py-4">
-        <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">Nome</span>
-        <span class="text-sm text-ink">{{ user.name }}</span>
-      </div>
-      <div class="flex items-center justify-between px-6 py-4">
-        <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">E-mail</span>
-        <span class="text-sm text-ink">{{ user.email }}</span>
-      </div>
-      @if (user.cpf) {
-        <div class="flex items-center justify-between px-6 py-4">
-          <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">CPF</span>
-          <span class="text-sm text-ink">{{ user.cpf }}</span>
+    @if (message(); as msg) {
+      <p class="mb-6 text-xs text-ink" role="status">{{ msg }}</p>
+    }
+
+    @if (editing()) {
+      <form [formGroup]="form" (ngSubmit)="onSave()" class="flex flex-col gap-6 border border-line p-6" novalidate>
+        <app-form-field label="Nome" fieldId="profile-name" autocomplete="name" [control]="form.controls.name" />
+        <app-form-field label="Telefone" fieldId="profile-phone" autocomplete="tel" [control]="form.controls.phone" />
+
+        <div class="flex gap-3">
+          <app-button variant="primary" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Salvando…' : 'Salvar' }}
+          </app-button>
+          <app-button variant="secondary" (click)="cancelEditing()">Cancelar</app-button>
         </div>
+      </form>
+    } @else {
+      <div class="border border-line divide-y divide-line">
+        <div class="flex items-center justify-between px-6 py-4">
+          <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">Nome</span>
+          <span class="text-sm text-ink">{{ user.name }}</span>
+        </div>
+        <div class="flex items-center justify-between px-6 py-4">
+          <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">E-mail</span>
+          <span class="text-sm text-ink">{{ user.email }}</span>
+        </div>
+        @if (user.cpf) {
+          <div class="flex items-center justify-between px-6 py-4">
+            <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">CPF</span>
+            <span class="text-sm text-ink">{{ user.cpf }}</span>
+          </div>
+        }
+        @if (user.phone) {
+          <div class="flex items-center justify-between px-6 py-4">
+            <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">Telefone</span>
+            <span class="text-sm text-ink">{{ user.phone }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <app-button variant="primary" (click)="startEditing()">Editar dados</app-button>
+        <app-button variant="secondary" link="/redefinir-senha">Alterar senha</app-button>
+        <app-button variant="secondary" (click)="onLogout()">Sair da conta</app-button>
+      </div>
+    }
+
+    <div class="mt-16">
+      <p class="text-[11px] uppercase tracking-[0.14em] text-ink-soft">Histórico</p>
+      <h2 class="mt-2 font-display text-2xl text-ink">Meus pedidos</h2>
+
+      @if (ordersError(); as err) {
+        <p class="mt-4 text-xs text-ink" role="alert">{{ err }}</p>
       }
-      @if (user.phone) {
-        <div class="flex items-center justify-between px-6 py-4">
-          <span class="text-xs uppercase tracking-[0.1em] text-ink-soft">Telefone</span>
-          <span class="text-sm text-ink">{{ user.phone }}</span>
-        </div>
+
+      @if (orders(); as orders) {
+        @if (orders.length === 0) {
+          <p class="mt-6 text-sm text-ink-soft">
+            Você ainda não fez pedidos.
+            <a routerLink="/produtos" class="text-ink underline underline-offset-4">Ver produtos</a>
+          </p>
+        } @else {
+          <div class="mt-6 border border-line divide-y divide-line">
+            @for (order of orders; track order.id) {
+              <div class="flex flex-col gap-2 px-6 py-4">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-ink">Pedido nº {{ order.id }}</span>
+                  <span class="font-display text-lg text-ink">{{ formatCurrency(order.total) }}</span>
+                </div>
+                <p class="text-xs text-ink-soft">{{ order.date }} · {{ order.delivery }}</p>
+                <p class="text-xs text-ink-soft">{{ order.notes }}</p>
+                <button
+                  type="button"
+                  (click)="onCancelOrder(order)"
+                  class="self-start text-xs text-ink-soft underline underline-offset-4 hover:text-ink"
+                >
+                  Cancelar pedido
+                </button>
+              </div>
+            }
+          </div>
+        }
+      } @else {
+        <app-loading-state label="Carregando pedidos" />
       }
     </div>
 
-    <app-button variant="secondary" (click)="onLogout()" class="mt-8 inline-flex">
-      Sair da conta
-    </app-button>
+    <div class="mt-16 border-t border-line pt-8">
+      <button
+        type="button"
+        (click)="onDeleteAccount()"
+        class="text-xs text-ink-soft underline underline-offset-4 hover:text-ink"
+      >
+        Excluir minha conta
+      </button>
+    </div>
   }
 </section>
