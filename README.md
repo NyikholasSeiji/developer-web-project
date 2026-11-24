@@ -33,19 +33,28 @@ São dois processos: **subir a API primeiro**, depois o frontend.
 
 ### 1. Backend (porta 8081)
 
-Precisa de um **JDK 21 ou superior** (`JAVA_HOME` apontando para ele).
+Precisa de um **JDK 21 ou superior**.
+
+**Primeira vez:** copie `backend/.env.example` para `backend/.env` e coloque
+em `JAVA_HOME` a pasta do seu JDK (a que contém `bin\java.exe`). O `.env` não
+vai para o git — cada pessoa tem o seu.
+
+**Para subir a API** (Windows):
 
 ```powershell
 cd backend
-.\mvnw spring-boot:run "-Dmaven.compiler.proc=none"
+.\run.cmd
 ```
 
-No Linux/macOS: `./mvnw spring-boot:run -Dmaven.compiler.proc=none`.
+O `run.cmd` lê o `JAVA_HOME` do `.env` e roda `mvnw spring-boot:run`. Para
+outros comandos do Maven, passe os goals: `.\run.cmd clean compile`.
 
-> **Por que `-Dmaven.compiler.proc=none`?** O `pom.xml` declara o Lombok, que
-> não é compatível com o compilador de JDKs muito novos (ex.: JDK 27). O código
-> não usa Lombok, então desligar o processamento de anotações resolve. Com
-> JDK 21/25 o comando sem a flag também funciona.
+No Linux/macOS (com `JAVA_HOME` exportado): `./mvnw spring-boot:run`.
+
+> **Lombok x JDK novo:** o `pom.xml` declara o Lombok, que não é compatível com
+> o compilador de JDKs muito novos (ex.: JDK 27). O código não usa Lombok, então
+> o arquivo `backend/.mvn/maven.config` desliga o processamento de anotações
+> (`-Dmaven.compiler.proc=none`) — o Maven aplica isso sozinho em todo comando.
 
 Pronto quando aparecer `Tomcat started on port 8081`. O banco `lojinha.db` é
 criado dentro de `backend/` na primeira execução (as tabelas são geradas pelo
