@@ -1,42 +1,79 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# ==================================================
+# FRONTEND (Angular) — /frontend
+# ==================================================
+/frontend/node_modules/
+/frontend/dist/
+/frontend/tmp/
+/frontend/out-tsc/
+/frontend/bazel-out/
+/frontend/.angular/cache/
+/frontend/coverage/
+/frontend/typings/
+/frontend/connect.lock
+/frontend/libpeerconnection.log
+.sass-cache/
+testem.log
+npm-debug.log*
+yarn-error.log*
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
+# VS Code do frontend: versiona só as configs compartilhadas do time
+/frontend/.vscode/*
+!/frontend/.vscode/settings.json
+!/frontend/.vscode/tasks.json
+!/frontend/.vscode/launch.json
+!/frontend/.vscode/extensions.json
+!/frontend/.vscode/mcp.json
+.history/
 
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
+# ==================================================
+# BACKEND (Spring Boot + Maven) — /backend
+# ==================================================
+/backend/target/
+/backend/HELP.md
+/backend/.mvn/wrapper/maven-wrapper.jar
+/backend/.vscode/
+/backend/build/
+*.class
 
-# IDEs and editors
+# Banco SQLite local (cada um tem o seu; é recriado ao subir a API)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# JDK baixado localmente, caso seja colocado dentro do repositório
+**/oracleJdk-*/
+**/jdk-*/
+
+# ==================================================
+# IDEs e editores
+# ==================================================
 .idea/
+*.iml
+*.iws
+*.ipr
 .project
 .classpath
-.c9/
-*.launch
 .settings/
+.factorypath
+.apt_generated
+.springBeans
+.sts4-cache
+*.launch
 *.sublime-workspace
+.c9/
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
 
-# Visual Studio Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.history/*
-
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-
-# System files
+# ==================================================
+# Sistema, logs e segredos
+# ==================================================
 .DS_Store
 Thumbs.db
+desktop.ini
+*.log
+logs/
+.env
+.env.*

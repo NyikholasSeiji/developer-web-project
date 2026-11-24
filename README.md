@@ -1,191 +1,247 @@
 # 🛍️ FNShop — Loja Virtual
 
-Frontend de um e-commerce construído em **Angular 19** (Standalone Components),
-seguindo uma arquitetura inspirada em **Clean Architecture** adaptada para o
-contexto de uma aplicação frontend: separação entre domínio, casos de uso,
-infraestrutura e apresentação, com Dependency Inversion via DI do Angular.
+E-commerce completo com **frontend em Angular 19** e **backend em Spring Boot**
+(API REST + SQLite), no mesmo repositório.
+
+```text
+.
+├── frontend/   → Angular 19 (Standalone Components, Tailwind, Signals)
+└── backend/    → Spring Boot 4 + Spring Data JPA + SQLite (API REST na porta 8081)
+```
 
 Este README é atualizado conforme o projeto evolui.
 
 ## 🚀 Tecnologias
 
-* Angular 19 (Standalone Components, novo sistema de Control Flow `@if`/`@for`)
-* TypeScript
-* Tailwind CSS v4
-* RxJS
-* Signals (`signal`, `computed`, `effect`, `toSignal`)
+**Frontend**
+
+* Angular 19 (Standalone Components, Control Flow `@if`/`@for`)
+* TypeScript, RxJS, Signals (`signal`, `computed`, `effect`, `toSignal`)
 * Reactive Forms (`FormGroup`, `Validators`)
+* Tailwind CSS v4
+
+**Backend**
+
+* Java 21+ e Spring Boot 4 (Web MVC + Data JPA)
+* Hibernate 7 com dialeto SQLite (`hibernate-community-dialects`)
+* SQLite (arquivo `lojinha.db`, criado automaticamente)
+* Maven Wrapper (`mvnw`) — não precisa instalar Maven
 
 ## ▶️ Executando o projeto
 
-Instale as dependências:
+São dois processos: **subir a API primeiro**, depois o frontend.
 
-```bash
-npm install
+### 1. Backend (porta 8081)
+
+Precisa de um **JDK 21 ou superior** (`JAVA_HOME` apontando para ele).
+
+```powershell
+cd backend
+.\mvnw spring-boot:run "-Dmaven.compiler.proc=none"
 ```
 
-Inicie o servidor de desenvolvimento:
+No Linux/macOS: `./mvnw spring-boot:run -Dmaven.compiler.proc=none`.
+
+> **Por que `-Dmaven.compiler.proc=none`?** O `pom.xml` declara o Lombok, que
+> não é compatível com o compilador de JDKs muito novos (ex.: JDK 27). O código
+> não usa Lombok, então desligar o processamento de anotações resolve. Com
+> JDK 21/25 o comando sem a flag também funciona.
+
+Pronto quando aparecer `Tomcat started on port 8081`. O banco `lojinha.db` é
+criado dentro de `backend/` na primeira execução (as tabelas são geradas pelo
+Hibernate com `ddl-auto=update`). O arquivo **não é versionado**: cada pessoa
+tem o seu.
+
+### 2. Frontend (porta 4200)
 
 ```bash
+cd frontend
+npm install
 npm start
 ```
 
-Acesse:
+Acesse `http://localhost:4200`.
 
-```
-http://localhost:4200
-```
+A URL da API fica em
+[`frontend/src/app/core/infrastructure/http/api.config.ts`](frontend/src/app/core/infrastructure/http/api.config.ts)
+(`http://localhost:8081`).
 
-Usuário de teste (login): `demo@forme.com` / `123456`
+### 3. Primeiro uso
 
-## 🏗️ Arquitetura
+* **Produtos:** o banco começa vazio. Cadastre produtos via
+  `POST /api/produto` (ex.: Postman, Insomnia ou `Invoke-RestMethod`):
+
+  ```json
+  { "nome": "Jaqueta Utilitária", "descritivo": "Corte reto em sarja pesada...",
+    "valor": 689, "valorPromo": 0, "quantidade": 10, "destaque": 1 }
+  ```
+
+  `destaque > 0` coloca o produto na vitrine da Home (ordenado pelo número);
+  `valorPromo` menor que `valor` exibe o produto em promoção.
+* **Conta:** crie uma em `/cadastro` — login, checkout e perfil usam a API.
+
+> Se a API estiver fora do ar, **o catálogo** cai automaticamente para dados
+> locais (mock), para a vitrine nunca ficar vazia. Login, cadastro e pedidos
+> **não** têm fallback: mostram a mensagem de erro de conexão.
+
+## 🔌 API (backend)
+
+Todos os controllers liberam CORS para qualquer origem (`@CrossOrigin("*")`).
+
+### Cliente — `/api/cliente`
+
+| Método | Endpoint | Uso no frontend |
+|---|---|---|
+| GET | `/api/cliente/{codigo}` | Perfil (dados atualizados) |
+| POST | `/api/cliente` | Cadastro |
+| PUT | `/api/cliente` | Editar perfil (nome, telefone) |
+| DELETE | `/api/cliente/{codigo}` | Excluir conta |
+| POST | `/api/cliente/login` | Login |
+| PATCH | `/api/cliente/resetarSenha` | "Esqueci minha senha" |
+| PATCH | `/api/cliente/alterarSenha` | Definir nova senha (e-mail + CPF) |
+
+### Produto — `/api/produto`
+
+| Método | Endpoint | Uso no frontend |
+|---|---|---|
+| GET | `/api/produtos` | Catálogo, categorias |
+| GET | `/api/produto/{codigo}` | Detalhe do produto |
+| GET | `/api/produto/vitrine` | Destaques da Home |
+| GET | `/api/produto/busca/{termo}` | Página de busca |
+| POST / PUT / DELETE | `/api/produto` | — (administração, sem tela ainda) |
+
+### Pedido — `/api/pedido`
+
+| Método | Endpoint | Uso no frontend |
+|---|---|---|
+| POST | `/api/pedido` | Finalizar compra (checkout) |
+| GET | `/api/pedido/{codigo}` | "Meus pedidos" no perfil |
+| DELETE | `/api/pedido/{codigo}` | Cancelar pedido |
+| PUT | `/api/pedido` | — (disponível em `OrderRepository`, sem tela) |
+
+### Regras e particularidades da API
+
+* "Não encontrado" e "login inválido" voltam como **objeto vazio** (`codigo: 0`),
+  não como 404.
+* Gravações respondem **texto puro** com o código no fim
+  (`"Cliente gravado com sucesso! 12"`); o frontend extrai esse número.
+* O login só aceita clientes com `ativo = 1` — o cadastro já envia `ativo: 1`.
+* **Resetar senha** define a senha `Senha1234` e **desativa** a conta
+  (`ativo = 0`). Para voltar a entrar, o cliente define uma nova senha em
+  `/redefinir-senha` (e-mail + CPF), o que reativa a conta. O envio de e-mail
+  ainda não existe no backend.
+* `alterarSenha` sempre responde sucesso; o frontend confirma fazendo login
+  com a nova senha e só então avisa se e-mail/CPF não conferem.
+* Pedidos ainda **não guardam itens** (`ItemPedido` está desligado no
+  backend): o resumo dos itens e a forma de pagamento vão no campo `obs`.
+* Não existe listagem de pedidos por cliente: o frontend guarda os códigos dos
+  pedidos feitos no navegador (`OrderHistoryStore`) e consulta cada um.
+* A tabela de produtos não tem categoria nem imagem: produtos vindos da API
+  aparecem na categoria "Geral" e com imagens do catálogo como placeholder.
+
+## 🏗️ Arquitetura do frontend
 
 ```text
-src/app/
+frontend/src/app/
 ├── core/
-│   ├── domain/           → entidades e contratos (Product, User, CartItem, AuthRepository...), sem Angular
-│   ├── application/      → casos de uso (ex: ListProductsUseCase, LoginUseCase, AddToCartUseCase)
-│   │                        e stores de estado (AuthSessionStore, CartStore)
-│   ├── infrastructure/   → implementações concretas dos contratos (hoje: mock)
+│   ├── domain/           → entidades e contratos (Product, User, Order, AuthRepository,
+│   │                        ProductRepository, OrderRepository), sem Angular
+│   ├── application/      → casos de uso (LoginUseCase, PlaceOrderUseCase, SearchProductsUseCase...)
+│   │                        e stores de estado (AuthSessionStore, CartStore, OrderHistoryStore)
+│   ├── infrastructure/   → implementações dos contratos
+│   │   ├── http/          → HttpProductRepository, HttpAuthRepository, HttpOrderRepository
+│   │   ├── mock/          → MockProductRepository (fallback do catálogo)
+│   │   └── fallback-product-repository.ts → tenta a API e cai para o mock
 │   ├── config/           → wiring de DI: liga interface (domain) → implementação (infrastructure)
-│   └── guards/           → guards de rota (authGuard), separados de config (DI) e application (casos de uso)
+│   └── guards/           → guards de rota (authGuard)
 │
 ├── features/              → uma pasta por fatia de negócio, carregada via lazy loading
-│   ├── home/               (implementada)
-│   ├── about/              (implementada)
-│   ├── authentication/    (implementada) → LoginPage, RegisterPage, ForgotPasswordPage
-│   ├── products/          (implementada) → ProductListPage (catálogo real + filtros), ProductDetailPage
-│   ├── categories/        (implementada) → CategoryListPage (catálogo real, com contagem de produtos)
-│   ├── search/             (implementada) → SearchPage (`/busca?q=`)
-│   ├── cart/               (implementada) → CartPage (`/carrinho`)
-│   ├── profile/            (implementada) → ProfilePage (`/perfil`, rota protegida)
-│   └── checkout/          (vazia — próxima a implementar)
+│   ├── home/               → hero, categorias, vitrine com filtros, CTA
+│   ├── about/              → página "Sobre"
+│   ├── authentication/    → Login, Cadastro, Esqueci a senha, Definir nova senha
+│   ├── products/          → catálogo com filtros e detalhe do produto
+│   ├── categories/        → lista de categorias com contagem
+│   ├── search/             → busca (`/busca?q=`)
+│   ├── cart/               → carrinho (`/carrinho`)
+│   ├── checkout/          → finalizar compra (`/checkout`, rota protegida)
+│   ├── profile/            → perfil e "Meus pedidos" (`/perfil`, rota protegida)
+│   └── favorites/          → página placeholder (ainda não implementada)
 │
 ├── shared/                 → UI e utils reutilizáveis, sem regra de negócio
-│   ├── components/           → header, footer, navbar, button, form-field, product-card,
-│   │                            product-grid, filter, cta-section, loading-state,
-│   │                            service-unavailable
-│   └── utils/                 → filterProducts (com busca por nome), formatCurrency,
-│                                 passwordsMatchValidator, cpfValidator, phoneValidator,
-│                                 local-storage.util (persistência de sessão/carrinho)
-│
-├── app.ts / app.html       → shell da aplicação (Header + router-outlet + Footer)
-├── app.config.ts           → providers globais (router com withComponentInputBinding, repositórios)
-└── app.routes.ts           → registro das rotas de cada feature (lazy loaded)
+└── app.config.ts / app.routes.ts
 ```
 
 Cada camada tem um `README.md` próprio (`core/domain`, `core/application`,
 `core/infrastructure`, `core/config`, `features`, `shared`) explicando sua
 responsabilidade e como estender.
 
-### Fluxo de dados (exemplo: produtos)
-
-```
-ProductListPage / ProductSectionComponent (Home)
-  → injeta ListProductsUseCase (application)
-    → injeta ProductRepository (interface, domain)
-      → resolvido em runtime para MockProductRepository (infrastructure)
-        → hoje: retorna dados mockados
-        → futuro: troca por HttpProductRepository, sem mudar mais nada
-```
-
-### Fluxo de autenticação (exemplo: login)
+### Fluxo de dados (exemplo: login)
 
 ```
 LoginPage
-  → injeta LoginUseCase (application)
-    → injeta AuthRepository (interface, domain)
-      → resolvido em runtime para MockAuthRepository (infrastructure)
-        → hoje: valida contra usuários mockados em memória
-        → futuro: troca por HttpAuthRepository, sem mudar mais nada
-    → em caso de sucesso, atualiza AuthSessionStore (signal, persistido em localStorage)
-      → Header reage automaticamente ao novo estado (mostra nome + "Sair")
+  → LoginUseCase (application)
+    → AuthRepository (interface, domain)
+      → HttpAuthRepository (infrastructure) → POST /api/cliente/login
+    → sucesso: atualiza AuthSessionStore (signal, persistido em localStorage)
+      → Header reage automaticamente (mostra nome + "Sair")
 ```
 
-### Fluxo de recuperação de senha
+### Fluxo de compra
 
 ```
-ForgotPasswordPage
-  → injeta RequestPasswordResetUseCase (application)
-    → injeta AuthRepository (interface, domain)
-      → resolvido em runtime para MockAuthRepository (infrastructure)
-        → sempre resolve com sucesso, por design: o cliente nunca revela
-          se um e-mail está ou não cadastrado
+CartPage → "Finalizar compra" → /checkout (authGuard exige login)
+  → PlaceOrderUseCase
+    → OrderRepository → HttpOrderRepository → POST /api/pedido
+    → registra o código em OrderHistoryStore e esvazia o CartStore
+  → Perfil → "Meus pedidos" → GET /api/pedido/{codigo} para cada pedido
 ```
 
-### Fluxo de carrinho
+## 🏗️ Estrutura do backend
 
-```
-ProductDetailPage ("Comprar")
-  → injeta AddToCartUseCase (application)
-    → atualiza CartStore (signal, persistido em localStorage)
-      → Header (badge) e CartPage reagem automaticamente ao novo estado
-  → navega para /carrinho
-```
-
-### Rota protegida (exemplo: perfil)
-
-```
-/perfil
-  → authGuard (core/guards) verifica AuthSessionStore.isAuthenticated()
-    → autenticado: libera a rota
-    → não autenticado: redireciona para /login
+```text
+backend/src/main/java/com/ads/lojinha/
+├── LojinhaApplication.java          → ponto de entrada Spring Boot
+├── Cliente / Produto / Pedido / ItemPedido.java   → entidades JPA
+├── *Repository.java                 → Spring Data JPA (+ queries nativas: login,
+│                                       resetar/alterar senha, vitrine, busca)
+└── *Controller.java                 → endpoints REST
+backend/src/main/resources/application.properties → porta 8081 e conexão SQLite
 ```
 
 ## ✅ Implementado até agora
 
-* Estrutura arquitetural completa (`core`, `features`, `shared`)
-* **Home / Landing Page**: header sticky, hero, categorias, produtos com filtros
-  (categoria, preço, ordenação, busca por nome), CTA de newsletter, footer
-* **Sobre**: hero editorial, história e valores/pilares
-* **Login / Cadastro / Recuperação de senha**:
-  * Login e cadastro com Reactive Forms e validação completa (obrigatório,
-    e-mail, senha mínima, confirmação de senha, **CPF** com dígito
-    verificador, **telefone** com DDD)
-  * **"Esqueci minha senha"** (`/esqueci-senha`): sempre confirma o envio,
-    sem revelar se o e-mail existe (boa prática de segurança)
-  * Sessão do usuário em `AuthSessionStore`, **persistida em localStorage**
-    (sobrevive a reload)
-* **Produtos (`/produtos`) e Categorias (`/categorias`)**: catálogo real
-  (mesma fonte de dados da Home), com filtros, contagem de produtos por
-  categoria, e estados de loading/erro (503) reais — não mais simulados
-* **Produto — Detalhe (`/produtos/:id`)**: busca por id, estados de
-  carregamento e "não encontrado" (404), botão "Comprar" que adiciona ao
-  carrinho e navega para a Cesta
-* **Busca (`/busca?q=`)**: campo de busca no Header totalmente funcional,
-  navega para a página de resultados; busca por nome, ignorando
-  maiúsculas/acentos
-* **Carrinho (`/carrinho`)**: adicionar, alterar quantidade, remover e
-  limpar itens; total calculado automaticamente; badge no Header reflete a
-  quantidade real; **persistido em localStorage**
-* **Perfil (`/perfil`)**: primeira rota protegida do projeto (`authGuard`,
-  redireciona para `/login` se não autenticado); mostra nome, e-mail, CPF e
-  telefone do usuário logado
-* **Footer**: Loja (Produtos, Categorias, Carrinho, Minha conta, Edição
-  Limitada — já filtrando por categoria), Sobre, redes sociais (Instagram e
-  Pinterest) funcionando, abrindo em nova aba
-* Identidade visual: paleta neutra (preto/branco/cinza), tipografia
-  Fraunces + Inter, numeração de catálogo nos cards de produto
-* Totalmente responsivo (desktop, tablet, mobile)
-* Dados mockados isolados da apresentação (`core/infrastructure/mock`),
-  prontos para serem trocados por uma API real
+* Frontend e backend integrados no mesmo repositório
+* **Home**: vitrine de destaques vinda da API, com filtros (categoria, preço,
+  ordenação, busca por nome)
+* **Login / Cadastro** na API, com validação completa (CPF com dígito
+  verificador, telefone com DDD, confirmação de senha)
+* **Esqueci minha senha + Definir nova senha** (e-mail + CPF), reativando a conta
+* **Produtos, Categorias e Detalhe** com dados da API e fallback para mock
+* **Busca** pela API (`/api/produto/busca/{termo}`), com autocomplete
+* **Carrinho** persistido em localStorage
+* **Checkout**: pagamento simulado, pedido gravado de verdade na API
+* **Perfil**: dados da API, edição de nome/telefone, troca de senha,
+  exclusão de conta, "Meus pedidos" com cancelamento
+* Totalmente responsivo; identidade visual neutra (Fraunces + Inter)
 
 ## 🚧 Ainda não implementado
 
-* Checkout e Favoritos (rotas já referenciadas na navegação)
-* "Finalizar compra" no carrinho fica desabilitado até o Checkout existir
-* Redefinição de senha em si (a página `/esqueci-senha` só solicita o envio
-  do link; a tela de "criar nova senha" ainda não existe)
-* Integração com backend/API
-* Pagamento
+* Favoritos
+* Área administrativa de produtos (a API já tem POST/PUT/DELETE)
+* Itens do pedido no backend (`ItemPedido`) e listagem de pedidos por cliente
+* Categoria e imagem no cadastro de produto
+* Envio de e-mail na redefinição/alteração de senha
+* Pagamento real
+* Segurança: a API devolve a senha do cliente no login/consulta e guarda a
+  senha em texto puro — precisa de hash e de um DTO de resposta sem senha
 
-## 🧩 Como adicionar uma nova feature
+## 🧩 Como adicionar uma nova feature (frontend)
 
-Veja o guia detalhado em [`src/app/features/README.md`](src/app/features/README.md).
+Veja o guia detalhado em [`frontend/src/app/features/README.md`](frontend/src/app/features/README.md).
 Resumo:
 
 1. Modelo/contrato novo? Cria em `core/domain`.
-2. Implementação (mock ou HTTP)? Cria em `core/infrastructure`.
+2. Implementação (HTTP ou mock)? Cria em `core/infrastructure`.
 3. Liga interface → implementação em `core/config`.
 4. Caso de uso em `core/application`.
 5. Tela em `features/<nome>/pages`, componentes locais em `features/<nome>/components`,
